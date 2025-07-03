@@ -13,9 +13,7 @@ app = FastAPI()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://pruebadeproduccion-qm81k12f5-juan-pablo-amm-2003s-projects.vercel.app"
-    ],
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
