@@ -10,7 +10,7 @@ from app.infrastructure.config.error_handler import error_handler
 
 app = FastAPI()
 
-# CORS específico para Vercel frontend
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://pruebadeproduccion.vercel.app"],
@@ -29,11 +29,6 @@ app.include_router(tareas_router, prefix="/api/v1", tags=["Tareas"])
 # Error handler
 app.middleware("http")(error_handler)
 
-# Preflight OPTIONS for POST (procesar-excel)
-@app.options("/api/v1/procesar-excel")
-async def preflight_procesar_excel():
-    return JSONResponse(status_code=200)
-
 # Endpoint simple
 @app.get("/")
 async def root():
@@ -48,7 +43,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"status": "error", "message": "Internal server error", "detail": str(exc)}
     )
 
-# Uvicorn entrypoint for local/Railway
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
-    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
