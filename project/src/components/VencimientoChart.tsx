@@ -8,13 +8,32 @@ interface VencimientoChartProps {
 }
 
 export const VencimientoChart: React.FC<VencimientoChartProps> = ({ data }) => {
-  // Ordenamos los datos por fecha (name tiene formato MM/YYYY o similar)
-  const sortedData = [...data].sort((a, b) => {
-    const [ma, ya] = a.name.split('/').map(Number);
-    const [mb, yb] = b.name.split('/').map(Number);
-    // Orden cronológico ascendente (mes/año)
-    return ya !== yb ? ya - yb : ma - mb;
-  });
+  const parseDate = (str: string): number => {
+    if (/^\d{2}\/\d{4}$/.test(str)) {
+      // MM/YYYY
+      const [m, y] = str.split('/').map(Number);
+      return y * 12 + m;
+    }
+    if (/^T\d \d{4}$/.test(str)) {
+      // Tn YYYY
+      const [t, y] = str.split(' ');
+      const tri = Number(t.replace('T', ''));
+      return Number(y) * 12 + (tri - 1) * 3 + 1;
+    }
+    if (/^\dº Cuatr\. \d{4}$/.test(str)) {
+      // N° Cuatr. YYYY
+      const [n, , y] = str.split(' ');
+      const cuatr = Number(n.replace('º', ''));
+      return Number(y) * 12 + (cuatr - 1) * 4 + 1;
+    }
+    if (/^\d{4}$/.test(str)) {
+      // YYYY
+      return Number(str) * 12;
+    }
+    return 0; // fallback
+  };
+
+  const sortedData = [...data].sort((a, b) => parseDate(a.name) - parseDate(b.name));
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
