@@ -4,4 +4,4 @@ pandas
 pydantic
 pydantic-settings
 httpx
-supabase-py
+supabase
