@@ -2,9 +2,10 @@ import axios from 'axios';
 import { Task, ProcessExcelResponse } from '../types/task';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/v1',
+  baseURL: 'https://pruebadeproduccion-production.up.railway.app/api/v1',
   timeout: 10000,
 });
+
 
 api.interceptors.request.use(
   (config) => {
