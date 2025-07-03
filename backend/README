@@ -1,0 +1,8 @@
+# Tareas Processor Backend
+
+## Requisitos
+- Python 3.11
+- Docker (opcional)
+
+## Configuración
+Crear un archivo `.env`:
