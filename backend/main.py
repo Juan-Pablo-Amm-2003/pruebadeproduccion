@@ -13,11 +13,15 @@ app = FastAPI()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://pruebadeproduccion.vercel.app"],
+    allow_origins=[
+        "https://pruebadeproduccion.vercel.app",
+        "https://pruebadeproduccion-fgcjyfcpy-juan-pablo-amm-2003s-projects.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Logging
 logging.basicConfig(level=logging.INFO)
