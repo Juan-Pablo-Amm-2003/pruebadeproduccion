@@ -1,15 +1,29 @@
+import logging
 from app.domain.services.tarea_comparator import comparar_tareas
 from app.utils.excel_reader import read_excel_file
 from app.utils.json_cleaner import clean_json_compat
 from app.infrastructure.repositories.supabase_repo import SupabaseRepository
 from app.domain.entities.tarea_factory import TareaFactory
+from app.domain.entities.constants import REQUIRED_COLUMNS
+from app.domain.exceptions import ExcelProcessingError
 
 class ProcesarTareasUseCase:
     def __init__(self, repo: SupabaseRepository):
         self.repo = repo
+        self.logger = logging.getLogger(__name__)
 
     def ejecutar(self, file):
-        records = read_excel_file(file)  # Ojo: esto también deberías hacerlo sync si no es realmente async
+        records, columns = read_excel_file(file)
+
+        missing = [c for c in REQUIRED_COLUMNS if c not in columns]
+        if missing:
+            self.logger.error(
+                "Columnas encontradas: %s, faltantes: %s", columns, missing
+            )
+            raise ExcelProcessingError(
+                f"Faltan columnas requeridas: {missing}"
+            )
+
         tareas = [TareaFactory.crear_desde_dict(r) for r in records]
 
         ids = [t.id_de_tarea for t in tareas]
