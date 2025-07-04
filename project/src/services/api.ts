@@ -34,7 +34,10 @@ export const taskAPI = {
     const response = await api.post<{ status: string, data: ProcessExcelResponse }>(
       '/procesar-excel',
       formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
+      { 
+       headers: { 'Content-Type': 'multipart/form-data' },
+       withCredentials: true 
+      }
     );
     return response.data.data;
   },

@@ -40,6 +40,19 @@ async def root():
 async def test_cors():
     return {"message": "CORS POST OK"}
 
+from fastapi.responses import JSONResponse
+
+@app.post("/api/v1/procesar-excel")
+async def procesar_excel(file: UploadFile = File(...)):
+    response = JSONResponse(content={
+        "status": "success",
+        "filename": file.filename
+    })
+    response.headers["Access-Control-Allow-Origin"] = "https://pruebadeproduccion.vercel.app"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error: {exc}")
