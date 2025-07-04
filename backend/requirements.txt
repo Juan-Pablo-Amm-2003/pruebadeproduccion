@@ -6,3 +6,4 @@ pydantic-settings
 httpx
 supabase
 python-multipart
+openpyxl
