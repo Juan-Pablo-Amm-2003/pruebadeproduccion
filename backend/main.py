@@ -10,13 +10,18 @@ from app.infrastructure.config.error_handler import error_handler
 
 app = FastAPI()
 
+# Register the error handler first so that CORS headers are applied even when
+# an exception occurs.
+app.middleware("http")(error_handler)
+
+# CORS configuration allowing requests from the Vercel frontend.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://pruebadeproduccion.vercel.app",
         "https://pruebadeproduccion-fgcjyfcpy-juan-pablo-amm-2003s-projects.vercel.app"
     ],
-    allow_credentials=True,  # Cambiá a True
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -28,9 +33,6 @@ logger = logging.getLogger(__name__)
 
 # Routers
 app.include_router(tareas_router, prefix="/api/v1", tags=["Tareas"])
-
-# Error handler
-app.middleware("http")(error_handler)
 
 @app.get("/")
 async def root():

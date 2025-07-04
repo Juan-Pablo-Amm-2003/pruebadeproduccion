@@ -1,9 +1,10 @@
 import pandas as pd
 import logging
+from app.domain.exceptions import ExcelProcessingError
 
 logger = logging.getLogger(__name__)
 
-async def read_excel_file(file) -> list[dict]:
+def read_excel_file(file) -> list[dict]:
     try:
         df = pd.read_excel(file.file)
         records = df.to_dict(orient="records")
@@ -11,4 +12,4 @@ async def read_excel_file(file) -> list[dict]:
         return records
     except Exception as e:
         logger.error(f"Error leyendo el archivo Excel: {e}")
-        raise
+        raise ExcelProcessingError("No se pudo leer el archivo Excel") from e
