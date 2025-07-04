@@ -10,14 +10,11 @@ from app.infrastructure.config.error_handler import error_handler
 
 app = FastAPI()
 
-# CORS Middleware
+# CORS Middleware: solución definitiva para GET + POST + multipart
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://pruebadeproduccion.vercel.app",
-        "https://pruebadeproduccion-fgcjyfcpy-juan-pablo-amm-2003s-projects.vercel.app"
-    ],
-    allow_credentials=False,  # ⚠️ Clave para evitar conflicto con wildcard
+    allow_origins=["*"],  
+    allow_credentials=False,  
     allow_methods=["*"],
     allow_headers=["*"],
 )
