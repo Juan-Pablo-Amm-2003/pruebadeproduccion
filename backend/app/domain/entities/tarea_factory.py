@@ -4,7 +4,7 @@ class TareaFactory:
     @staticmethod
     def crear_desde_dict(r: dict) -> Tarea:
         return Tarea(
-            id_de_tarea=r.get("Id. de tarea "),
+            id_de_tarea=r.get("Id. de tarea"),
             nombre_de_la_tarea=r.get("Nombre de la tarea"),
             nombre_del_deposito=r.get("Nombre del depósito"),
             progreso=r.get("Progreso"),

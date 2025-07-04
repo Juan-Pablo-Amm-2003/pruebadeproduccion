@@ -14,10 +14,23 @@ class ProcesarTareasUseCase:
 
     def ejecutar(self, file):
         records = read_excel_file(file)
-        logger.info(f"Columnas recibidas: {records[0].keys() if records else 'No data'}")
+        if not records:
+            raise ExcelProcessingError("Archivo Excel vacío o mal formado")
 
-        required_columns = {"columna1", "columna2", "columna3"}  # Ajustá a tus columnas reales
-        actual_columns = set(records[0].keys()) if records else set()
+        logger.info(f"Columnas recibidas: {records[0].keys()}")
+
+        required_columns = {
+            "Id. de tarea",
+            "Nombre de la tarea",
+            "Nombre del depósito",
+            "Progreso",
+            "Priority",
+            "Asignado a",
+            "Creado por",
+            "Fecha de creación"
+        }
+
+        actual_columns = set(records[0].keys())
         missing = required_columns - actual_columns
 
         if missing:
