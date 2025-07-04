@@ -1,10 +1,8 @@
 from fastapi import FastAPI, Request, UploadFile, File
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 import os
 import uvicorn
-from fastapi import FastAPI, Request, UploadFile, File
 
 from app.api.v1.tareas import router as tareas_router
 from app.infrastructure.config.error_handler import error_handler
@@ -42,14 +40,8 @@ async def procesar_excel(file: UploadFile = File(...)):
         "filename": file.filename
     }
 
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Unhandled error: {exc}")
-    return JSONResponse(
-        status_code=500,
-        content={"status": "error", "message": "Internal server error", "detail": str(exc)}
-    )
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
+
