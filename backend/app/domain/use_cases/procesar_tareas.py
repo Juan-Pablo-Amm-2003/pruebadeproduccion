@@ -13,11 +13,12 @@ class ProcesarTareasUseCase:
         self.repo = repo
 
     def ejecutar(self, file):
-        records = read_excel_file(file)
+        records, columns = read_excel_file(file)
+
         if not records:
             raise ExcelProcessingError("Archivo Excel vacío o mal formado")
 
-        logger.info(f"Columnas recibidas: {records[0].keys()}")
+        logger.info(f"Columnas recibidas: {columns}")
 
         required_columns = {
             "Id. de tarea",
@@ -30,7 +31,7 @@ class ProcesarTareasUseCase:
             "Fecha de creación"
         }
 
-        actual_columns = set(records[0].keys())
+        actual_columns = set(columns)
         missing = required_columns - actual_columns
 
         if missing:
