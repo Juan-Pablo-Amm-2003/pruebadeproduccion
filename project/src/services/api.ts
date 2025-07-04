@@ -6,9 +6,6 @@ const api = axios.create({
   timeout: 10000,
 });
 
-
-
-
 api.interceptors.request.use(
   (config) => {
     console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
@@ -28,7 +25,7 @@ api.interceptors.response.use(
 export const taskAPI = {
   fetchTareas: async (): Promise<Task[]> => {
     const response = await api.get<{ status: string, data: Task[] }>('/tareas');
-    return response.data.data;  // ⚠️ Accedemos al data interno
+    return response.data.data;
   },
 
   procesarExcel: async (file: File): Promise<ProcessExcelResponse> => {
@@ -39,7 +36,7 @@ export const taskAPI = {
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
-    return response.data.data;  // ⚠️ Accedemos al data interno
+    return response.data.data;
   },
 };
 

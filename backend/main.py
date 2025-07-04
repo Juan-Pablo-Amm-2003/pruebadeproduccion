@@ -10,35 +10,32 @@ from app.infrastructure.config.error_handler import error_handler
 
 app = FastAPI()
 
-# CORS
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://pruebadeproduccion.vercel.app",
         "https://pruebadeproduccion-fgcjyfcpy-juan-pablo-amm-2003s-projects.vercel.app"
     ],
-    allow_credentials=True,
+    allow_credentials=False,  # ⚠️ Clave para evitar conflicto con wildcard
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Router
+# Routers
 app.include_router(tareas_router, prefix="/api/v1", tags=["Tareas"])
 
 # Error handler
 app.middleware("http")(error_handler)
 
-# Endpoint simple
 @app.get("/")
 async def root():
     return {"status": "ok"}
 
-# Exception global
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error: {exc}")
