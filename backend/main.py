@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 import os
 import uvicorn
+from fastapi import FastAPI, Request, UploadFile, File
+
 
 from app.api.v1.tareas import router as tareas_router
 from app.infrastructure.config.error_handler import error_handler
