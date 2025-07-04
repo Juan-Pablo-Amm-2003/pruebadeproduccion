@@ -10,17 +10,17 @@ from app.infrastructure.config.error_handler import error_handler
 
 app = FastAPI()
 
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://pruebadeproduccion.vercel.app",
         "https://pruebadeproduccion-fgcjyfcpy-juan-pablo-amm-2003s-projects.vercel.app"
     ],
-    allow_credentials=True,  # Cambiá a True
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +36,10 @@ app.middleware("http")(error_handler)
 async def root():
     return {"status": "ok"}
 
+@app.post("/api/v1/test-cors")
+async def test_cors():
+    return {"message": "CORS POST OK"}
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error: {exc}")
@@ -46,4 +50,4 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, proxy_headers=True)
