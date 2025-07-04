@@ -12,15 +12,15 @@ repo = SupabaseRepository(supabase)
 use_case = ProcesarTareasUseCase(repo)
 
 @router.post("/procesar-excel")
-async def procesar_excel(file: UploadFile):
+def procesar_excel(file: UploadFile):
     logger.info("Endpoint /api/v1/procesar-excel hit")
-    result = await use_case.ejecutar(file)
+    result = use_case.ejecutar(file)
     logger.info(f"Procesamiento exitoso: {result}")
     return {"status": "success", "data": result}
 
 @router.get("/tareas")
-async def listar_tareas():
+def listar_tareas():
     logger.info("Endpoint /api/v1/tareas hit")
-    tareas = await repo.get_all()
+    tareas = repo.get_all()
     tareas = tareas if isinstance(tareas, list) else []
     return {"status": "success", "data": clean_json_compat(tareas)}

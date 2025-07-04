@@ -8,23 +8,24 @@ class ProcesarTareasUseCase:
     def __init__(self, repo: SupabaseRepository):
         self.repo = repo
 
-    async def ejecutar(self, file):
-        records = await read_excel_file(file)
+    def ejecutar(self, file):
+        records = read_excel_file(file)  # Ojo: esto también deberías hacerlo sync si no es realmente async
         tareas = [TareaFactory.crear_desde_dict(r) for r in records]
 
         ids = [t.id_de_tarea for t in tareas]
-        existentes = await self.repo.get_by_ids(ids)
+        existentes = self.repo.get_by_ids(ids)
 
         inserts, updates = comparar_tareas(tareas, existentes)
 
         if inserts:
-            await self.repo.insert_many(inserts)
+            self.repo.insert_many(inserts)
         if updates:
             for tarea in updates:
-                await self.repo.update_one(tarea)
+                self.repo.update_one(tarea)
 
         result = {
             "insertados": len(inserts),
             "actualizados": len(updates)
         }
         return clean_json_compat(result)
+

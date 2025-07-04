@@ -12,14 +12,13 @@ class SupabaseRepository:
         self.supabase = supabase_client
         self.table = "juan_marquez"
 
-    async def get_by_ids(self, ids):
+    def get_by_ids(self, ids):
         res = self.supabase.table(self.table).select('*').in_('id_de_tarea', ids).execute()
         if not res.data:
-            # No hay registros encontrados
             return []
         return [Tarea(**r) for r in res.data]
 
-    async def insert_many(self, tareas):
+    def insert_many(self, tareas):
         clean_data = [
             clean_json_compat(normalize_dates(t.to_dict())) for t in tareas
         ]
@@ -27,17 +26,15 @@ class SupabaseRepository:
         if res.data is None:
             raise RepositoryError("Supabase INSERT failed (sin datos devueltos)")
 
-
-    async def update_one(self, tarea):
+    def update_one(self, tarea):
         raw_data = tarea.to_dict()
         clean_data = clean_json_compat(normalize_dates(raw_data))
         res = self.supabase.table(self.table).update(clean_data).eq('id_de_tarea', tarea.id_de_tarea).execute()
         if res.data is None:
             raise RepositoryError("Supabase UPDATE failed (sin datos devueltos)")
-        
-    async def get_all(self):
+
+    def get_all(self):
         res = self.supabase.table(self.table).select("*").execute()
         if hasattr(res, "data"):
             return res.data
         return []
-
