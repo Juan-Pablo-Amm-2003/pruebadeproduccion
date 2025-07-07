@@ -1,4 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+// ⬆️ IMPORTACIONES NECESARIAS
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { RefreshCw } from 'lucide-react';
 import { Task, TaskFilters, ProcessExcelResponse } from '../types/task';
 import { taskAPI } from '../services/api';
@@ -10,6 +13,7 @@ import { VencimientoTable } from '../components/VencimientoTable';
 import { FileUpload } from '../components/FileUpload';
 import { TaskFilters as TaskFiltersComponent } from '../components/TaskFilters';
 import { useVencimientoData } from '../hooks/useVencimientoData';
+
 
 export const Dashboard: React.FC = () => {
   const [tareas, setTareas] = useState<Task[]>([]);
@@ -32,6 +36,26 @@ export const Dashboard: React.FC = () => {
   const handleFileUploadSuccess = (result: ProcessExcelResponse) => {
     loadTasks();
   };
+
+
+  const chartsRef = useRef<HTMLDivElement>(null);
+
+const handleDownloadChartsPDF = async () => {
+  if (chartsRef.current) {
+    const canvas = await html2canvas(chartsRef.current, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'px',
+      format: [canvas.width, canvas.height]
+    });
+    const fecha = new Date().toISOString().split('T')[0];
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save(`resumen_efectividad_estado_${fecha}.pdf`);
+  }
+};
+
+
 
   const filteredTasks = useMemo(() => {
     return tareas.filter((task) => {
@@ -72,8 +96,20 @@ export const Dashboard: React.FC = () => {
           actualizados={0}
         />
 
-        <EstadoPieChart tareas={filteredTasks} />
-        <ImplementacionEfectividadPieChart tareas={filteredTasks} />
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={handleDownloadChartsPDF}
+            className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-all text-sm"
+          >
+            Descargar Gráficos en PDF
+          </button>
+        </div>
+
+        <div ref={chartsRef} className="space-y-8">
+          <EstadoPieChart tareas={filteredTasks} />
+          <ImplementacionEfectividadPieChart tareas={filteredTasks} />
+        </div>
+
 
         <div className="flex gap-4 mt-4 mb-4">
           <select
