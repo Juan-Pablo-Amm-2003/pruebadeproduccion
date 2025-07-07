@@ -40,21 +40,11 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
     porcentaje: total > 0 ? `${((d.value / total) * 100).toFixed(1)}%` : '0%'
   }));
 
-  const COLORS = {
+  const COLORS: Record<string, string> = {
     'Efectividad Verificada': '#059669',
     'Verificación Rechazada': '#dc2626',
     'Verificación en Espera': '#facc15',
     'Otros Completados': '#2563eb'
-  };
-
-  const handleDownloadImage = async () => {
-    if (chartRef.current) {
-      const canvas = await html2canvas(chartRef.current, { scale: 2 });
-      const link = document.createElement('a');
-      link.download = 'efectividad_pie_chart.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
   };
 
   const handleDownloadPDF = async () => {
@@ -77,21 +67,14 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
         <h3 className="text-lg font-semibold text-gray-900">
           Efectividad sobre Completados (Total: {total})
         </h3>
-        <div className="flex gap-2">
-          <button
-            onClick={handleDownloadImage}
-            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Imagen
-          </button>
-          <button
-            onClick={handleDownloadPDF}
-            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            PDF
-          </button>
-        </div>
+        <button
+          onClick={handleDownloadPDF}
+          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+        >
+          Descargar PDF
+        </button>
       </div>
+
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -106,7 +89,7 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={COLORS[entry.name as keyof typeof COLORS] || '#8884d8'}
+                fill={COLORS[entry.name] || '#8884d8'}
               />
             ))}
           </Pie>
@@ -114,6 +97,11 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
             formatter={(value: number, name: string, props: any) =>
               [`${value} (${props.payload.porcentaje})`, name]
             }
+            contentStyle={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+            }}
           />
           <Legend />
         </PieChart>

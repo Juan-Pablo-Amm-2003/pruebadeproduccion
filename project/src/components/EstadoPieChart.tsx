@@ -1,4 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
@@ -9,6 +11,7 @@ interface EstadoPieChartProps {
 }
 
 export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
+  const chartRef = useRef<HTMLDivElement>(null);
   const total = tareas.length;
 
   const data = useMemo(() => {
@@ -28,13 +31,37 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     'Completado': '#059669',
     'En curso': '#2563eb',
     'Pendiente': '#d97706',
+    'No iniciado': '#a78bfa',
+  };
+
+  const handleDownloadPDF = async () => {
+    if (chartRef.current) {
+      const canvas = await html2canvas(chartRef.current, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save('estado_pie_chart.pdf');
+    }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        Distribución por Estado (Total: {total})
-      </h3>
+    <div ref={chartRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Distribución por Estado (Total: {total})
+        </h3>
+        <button
+          onClick={handleDownloadPDF}
+          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+        >
+          Descargar PDF
+        </button>
+      </div>
+
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
