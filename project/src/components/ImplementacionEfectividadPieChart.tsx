@@ -1,3 +1,4 @@
+// src/components/EfectividadChart.tsx
 import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -21,49 +22,52 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
   ).length;
 
   const verificacionRechazada = completados.filter(
-    t => t.etiquetas?.toLowerCase().includes('verificacion en rechazada')
+    t => t.etiquetas?.toLowerCase().includes('verificacion rechazada')
   ).length;
 
   const verificacionEspera = completados.filter(
     t => t.etiquetas?.toLowerCase().includes('verificacion en espera')
   ).length;
 
-  const otros = completados.filter(
-    t => !(
-      t.nombre_del_deposito?.trim().toUpperCase() === 'EFECTIVIDAD VERIFICADA' ||
-      t.etiquetas?.toLowerCase().includes('verificacion en rechazada') ||
-      t.etiquetas?.toLowerCase().includes('verificacion en espera')
-    )
-  ).length;
+  const otros = total - (efectividadVerificada + verificacionRechazada + verificacionEspera);
 
   const data = [
     {
       name: 'Efectividad Verificada',
       value: efectividadVerificada,
-      porcentaje: total > 0 ? `${((efectividadVerificada / total) * 100).toFixed(1)}%` : '0%'
     },
     {
       name: 'Verificación Rechazada',
       value: verificacionRechazada,
-      porcentaje: total > 0 ? `${((verificacionRechazada / total) * 100).toFixed(1)}%` : '0%'
     },
     {
       name: 'Verificación en Espera',
       value: verificacionEspera,
-      porcentaje: total > 0 ? `${((verificacionEspera / total) * 100).toFixed(1)}%` : '0%'
     },
     {
       name: 'Otros Completados',
       value: otros,
-      porcentaje: total > 0 ? `${((otros / total) * 100).toFixed(1)}%` : '0%'
     }
-  ];
+  ].map(d => ({
+    ...d,
+    porcentaje: total > 0 ? `${((d.value / total) * 100).toFixed(1)}%` : '0%'
+  }));
 
   const COLORS = {
     'Efectividad Verificada': '#059669',
     'Verificación Rechazada': '#dc2626',
     'Verificación en Espera': '#facc15',
     'Otros Completados': '#2563eb'
+  };
+
+  const handleDownloadImage = async () => {
+    if (chartRef.current) {
+      const canvas = await html2canvas(chartRef.current, { scale: 2 });
+      const link = document.createElement('a');
+      link.download = 'efectividad_pie_chart.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
   };
 
   const handleDownloadPDF = async () => {
@@ -82,9 +86,25 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
 
   return (
     <div ref={chartRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        Efectividad sobre Completados (Total: {total})
-      </h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Efectividad sobre Completados (Total: {total})
+        </h3>
+        <div className="flex gap-2">
+          <button
+            onClick={handleDownloadImage}
+            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Descargar imagen
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Descargar PDF
+          </button>
+        </div>
+      </div>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -116,14 +136,6 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
           <Legend />
         </PieChart>
       </ResponsiveContainer>
-      <div className="flex justify-end mt-4">
-        <button
-          onClick={handleDownloadPDF}
-          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Descargar PDF
-        </button>
-      </div>
     </div>
   );
 };
