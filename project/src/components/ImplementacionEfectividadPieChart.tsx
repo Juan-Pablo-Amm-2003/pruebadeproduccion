@@ -56,8 +56,9 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
         unit: 'px',
         format: [canvas.width, canvas.height]
       });
+      const fecha = new Date().toISOString().split('T')[0];
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-      pdf.save('efectividad_pie_chart.pdf');
+      pdf.save(`efectividad_pie_chart_${fecha}.pdf`);
     }
   };
 
@@ -81,17 +82,20 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
           <button
             onClick={handleDownloadImage}
             className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+            aria-label="Descargar como imagen"
           >
             Imagen
           </button>
           <button
             onClick={handleDownloadPDF}
             className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+            aria-label="Descargar como PDF"
           >
             PDF
           </button>
         </div>
       </div>
+
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -117,7 +121,7 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
             contentStyle={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
-              borderRadius: '8px',
+              borderRadius: '8px'
             }}
           />
           <Legend />
