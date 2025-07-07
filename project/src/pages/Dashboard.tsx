@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
 import { Task, TaskFilters, ProcessExcelResponse } from '../types/task';
 import { taskAPI } from '../services/api';
@@ -20,6 +22,7 @@ export const Dashboard: React.FC = () => {
   const [filters, setFilters] = useState<TaskFilters>({ search: '', progreso: '', asignado_a: '', fecha_inicio: '', fecha_fin: '' });
   const [agrupamiento, setAgrupamiento] = useState<'Mes' | 'Trimestre' | 'Cuatrimestre' | 'Año'>('Mes');
   const [periodo, setPeriodo] = useState<string>('');
+  const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadTasks();
@@ -35,6 +38,20 @@ export const Dashboard: React.FC = () => {
       setError('Error al cargar las tareas. Verifica que el backend esté ejecutándose.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadDashboardPDF = async () => {
+    if (reportRef.current) {
+      const canvas = await html2canvas(reportRef.current, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save('informe_dashboard.pdf');
     }
   };
 
@@ -103,14 +120,22 @@ export const Dashboard: React.FC = () => {
             <h1 className="text-3xl font-bold text-green-700">Dashboard de Tareas</h1>
             <p className="mt-2 text-green-600">Gestiona y visualiza todas tus tareas en un solo lugar</p>
           </div>
-          <button
-            onClick={loadTasks}
-            disabled={loading}
-            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Actualizar
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={loadTasks}
+              disabled={loading}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Actualizar
+            </button>
+            <button
+              onClick={handleDownloadDashboardPDF}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Descargar informe PDF
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -130,14 +155,18 @@ export const Dashboard: React.FC = () => {
         )}
 
         <FileUpload onSuccess={handleFileUploadSuccess} onError={handleFileUploadError} />
-        <SummaryCards {...summaryStats} />
 
-        {/* Filtros y gráficos generales */}
-        <TaskFiltersComponent filters={filters} onFiltersChange={setFilters} assignees={uniqueAssignees} />
-        <EstadoPieChart tareas={filteredTasks} />
-        <ImplementacionEfectividadPieChart tareas={filteredTasks} />
+        {/* CONTENIDO A EXPORTAR */}
+        <div ref={reportRef}>
+          <SummaryCards {...summaryStats} />
+          <TaskFiltersComponent filters={filters} onFiltersChange={setFilters} assignees={uniqueAssignees} />
+          <EstadoPieChart tareas={filteredTasks} />
+          <ImplementacionEfectividadPieChart tareas={filteredTasks} />
+          <VencimientoChart data={chartData} />
+          <VencimientoTable data={tableData} />
+        </div>
 
-        {/* Filtros y gráficos vencimientos */}
+        {/* Selectores de período */}
         <div className="flex gap-4 mb-4">
           <select
             value={agrupamiento}
@@ -160,9 +189,6 @@ export const Dashboard: React.FC = () => {
             ))}
           </select>
         </div>
-
-        <VencimientoChart data={chartData} />
-        <VencimientoTable data={tableData} />
       </div>
     </div>
   );
