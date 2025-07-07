@@ -166,7 +166,6 @@ export const Dashboard: React.FC = () => {
           <VencimientoTable data={tableData} />
         </div>
 
-        {/* Selectores de período */}
         <div className="flex gap-4 mb-4">
           <select
             value={agrupamiento}
