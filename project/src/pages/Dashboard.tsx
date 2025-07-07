@@ -11,7 +11,7 @@ import { EstadoPieChart } from '../components/EstadoPieChart';
 import { ImplementacionEfectividadPieChart } from '../components/EfectividadChart';
 import { VencimientoChart } from '../components/VencimientoChart';
 import { VencimientoTable } from '../components/VencimientoTable';
-import '../styles/report.css';
+import '../utils/report.css';
 
 
 export const Dashboard: React.FC = () => {
