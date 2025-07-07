@@ -1,0 +1,50 @@
+/* report.css */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .hide-on-pdf,
+  header,
+  footer,
+  nav,
+  button,
+  select,
+  input,
+  .filters-container {
+    display: none !important;
+  }
+
+  .pdf-container {
+    padding: 0;
+    margin: 0 auto;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .pdf-container canvas,
+  .pdf-container svg,
+  .pdf-container table {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  table th, table td {
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    text-align: left;
+  }
+
+  .pdf-container,
+  .pdf-container * {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

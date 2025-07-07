@@ -28,7 +28,13 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
     t => t.etiquetas?.toLowerCase().includes('verificacion en espera')
   ).length;
 
-  const otros = total - (efectividadVerificada + verificacionRechazada + verificacionEspera);
+  const otros = completados.filter(
+    t => !(
+      t.nombre_del_deposito?.trim().toUpperCase() === 'EFECTIVIDAD VERIFICADA' ||
+      t.etiquetas?.toLowerCase().includes('verificacion en rechazada') ||
+      t.etiquetas?.toLowerCase().includes('verificacion en espera')
+    )
+  ).length;
 
   const data = [
     {
@@ -60,16 +66,6 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
     'Otros Completados': '#2563eb'
   };
 
-  const handleDownloadImage = async () => {
-    if (chartRef.current) {
-      const canvas = await html2canvas(chartRef.current, { scale: 2 });
-      const link = document.createElement('a');
-      link.download = 'efectividad_pie_chart.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
-  };
-
   const handleDownloadPDF = async () => {
     if (chartRef.current) {
       const canvas = await html2canvas(chartRef.current, { scale: 2 });
@@ -86,25 +82,9 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
 
   return (
     <div ref={chartRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Efectividad sobre Completados (Total: {total})
-        </h3>
-        <div className="flex gap-2">
-          <button
-            onClick={handleDownloadImage}
-            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Descargar imagen
-          </button>
-          <button
-            onClick={handleDownloadPDF}
-            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Descargar PDF
-          </button>
-        </div>
-      </div>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        Efectividad sobre Completados (Total: {total})
+      </h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -136,6 +116,14 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
           <Legend />
         </PieChart>
       </ResponsiveContainer>
+      <div className="flex justify-end mt-4">
+        <button
+          onClick={handleDownloadPDF}
+          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Descargar PDF
+        </button>
+      </div>
     </div>
   );
 };
