@@ -72,61 +72,44 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
     }
   };
 
-  return (
-    <div ref={chartRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Efectividad sobre Completados (Total: {total})
-        </h3>
-        <div className="flex gap-2">
-          <button
-            onClick={handleDownloadImage}
-            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-            aria-label="Descargar como imagen"
-          >
-            Imagen
-          </button>
-          <button
-            onClick={handleDownloadPDF}
-            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
-            aria-label="Descargar como PDF"
-          >
-            PDF
-          </button>
-        </div>
-      </div>
+return (
+  <div ref={chartRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      Efectividad sobre Completados (Total: {total})
+    </h3>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            dataKey="value"
-            nameKey="name"
-            label={({ name, porcentaje }) => `${name}: ${porcentaje}`}
-          >
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[entry.name] || '#8884d8'}
-              />
-            ))}
-          </Pie>
-          <Tooltip
-            formatter={(value: number, name: string, props: any) =>
-              [`${value} (${props.payload.porcentaje})`, name]
-            }
-            contentStyle={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px'
-            }}
-          />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
+    <ResponsiveContainer width="100%" height={300}>
+      <PieChart>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          outerRadius={100}
+          dataKey="value"
+          nameKey="name"
+          label={({ name, porcentaje }) => `${name}: ${porcentaje}`}
+        >
+          {data.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={COLORS[entry.name] || '#8884d8'}
+            />
+          ))}
+        </Pie>
+        <Tooltip
+          formatter={(value: number, name: string, props: any) =>
+            [`${value} (${props.payload.porcentaje})`, name]
+          }
+          contentStyle={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px'
+          }}
+        />
+        <Legend />
+      </PieChart>
+    </ResponsiveContainer>
+  </div>
+);
+
 };
