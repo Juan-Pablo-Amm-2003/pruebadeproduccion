@@ -97,6 +97,9 @@ export const Dashboard: React.FC = () => {
             insertados={0}
             actualizados={0}
           />
+          
+          <EstadoPieChart tareas={filteredTasks} />
+          <ImplementacionEfectividadPieChart tareas={filteredTasks} />
                   <div className="flex gap-4 mt-4">
           <select
             value={agrupamiento}
@@ -119,13 +122,32 @@ export const Dashboard: React.FC = () => {
             ))}
           </select>
         </div>
-          <EstadoPieChart tareas={filteredTasks} />
-          <ImplementacionEfectividadPieChart tareas={filteredTasks} />
           <VencimientoChart data={chartData} />
           <VencimientoTable data={tableData} />
         </div>
 
-
+        <div className="flex gap-4 mt-4">
+          <select
+            value={agrupamiento}
+            onChange={(e) => { setAgrupamiento(e.target.value as any); setPeriodo(''); }}
+            className="px-3 py-2 border rounded border-green-300"
+          >
+            <option>Mes</option>
+            <option>Trimestre</option>
+            <option>Cuatrimestre</option>
+            <option>Año</option>
+          </select>
+          <select
+            value={periodo}
+            onChange={(e) => setPeriodo(e.target.value)}
+            className="px-3 py-2 border rounded border-green-300"
+          >
+            <option value="">Seleccione período...</option>
+            {periodosDisponibles.map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );
