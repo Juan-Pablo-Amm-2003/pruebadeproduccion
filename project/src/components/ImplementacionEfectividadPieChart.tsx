@@ -1,4 +1,3 @@
-// src/components/EfectividadChart.tsx
 import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -32,22 +31,10 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
   const otros = total - (efectividadVerificada + verificacionRechazada + verificacionEspera);
 
   const data = [
-    {
-      name: 'Efectividad Verificada',
-      value: efectividadVerificada,
-    },
-    {
-      name: 'Verificación Rechazada',
-      value: verificacionRechazada,
-    },
-    {
-      name: 'Verificación en Espera',
-      value: verificacionEspera,
-    },
-    {
-      name: 'Otros Completados',
-      value: otros,
-    }
+    { name: 'Efectividad Verificada', value: efectividadVerificada },
+    { name: 'Verificación Rechazada', value: verificacionRechazada },
+    { name: 'Verificación en Espera', value: verificacionEspera },
+    { name: 'Otros Completados', value: otros }
   ].map(d => ({
     ...d,
     porcentaje: total > 0 ? `${((d.value / total) * 100).toFixed(1)}%` : '0%'
@@ -95,13 +82,13 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
             onClick={handleDownloadImage}
             className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
           >
-            Descargar imagen
+            Imagen
           </button>
           <button
             onClick={handleDownloadPDF}
             className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Descargar PDF
+            PDF
           </button>
         </div>
       </div>
@@ -127,11 +114,6 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
             formatter={(value: number, name: string, props: any) =>
               [`${value} (${props.payload.porcentaje})`, name]
             }
-            contentStyle={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-            }}
           />
           <Legend />
         </PieChart>

@@ -1,9 +1,8 @@
-// src/pages/Dashboard.tsx
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { RefreshCw } from 'lucide-react';
-import { Task, TaskFilters, ProcessExcelResponse } from '../types/task';
+import { Task } from '../types/task';
 import { taskAPI } from '../services/api';
 import { SummaryCards } from '../components/SummaryCards';
 import { EstadoPieChart } from '../components/EstadoPieChart';
@@ -21,16 +20,11 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   const loadTasks = async () => {
-    try {
-      setLoading(true);
-      const data = await taskAPI.fetchTareas();
-      setTareas(data);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    const data = await taskAPI.fetchTareas();
+    setTareas(data);
+    setLoading(false);
   };
-
-  const filteredTasks = useMemo(() => tareas, [tareas]); // Sin filtros para exportar puro
 
   const handleDownloadDashboardPDF = async () => {
     if (reportRef.current) {
@@ -76,8 +70,8 @@ export const Dashboard: React.FC = () => {
             insertados={0}
             actualizados={0}
           />
-          <EstadoPieChart tareas={filteredTasks} />
-          <ImplementacionEfectividadPieChart tareas={filteredTasks} />
+          <EstadoPieChart tareas={tareas} />
+          <ImplementacionEfectividadPieChart tareas={tareas} />
           <VencimientoChart data={[]} />
           <VencimientoTable data={[]} />
         </div>
