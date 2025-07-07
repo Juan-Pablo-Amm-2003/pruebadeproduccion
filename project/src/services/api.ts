@@ -33,6 +33,7 @@ api.interceptors.response.use(
 export const taskAPI = {
   fetchTareas: async (): Promise<Task[]> => {
     const response = await api.get<{ status: string, data: Task[] }>('/tareas');
+    console.log(response.data.data);
     return response.data.data;
   },
 
