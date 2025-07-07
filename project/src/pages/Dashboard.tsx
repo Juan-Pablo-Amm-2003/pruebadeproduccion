@@ -97,13 +97,7 @@ export const Dashboard: React.FC = () => {
             insertados={0}
             actualizados={0}
           />
-          <EstadoPieChart tareas={filteredTasks} />
-          <ImplementacionEfectividadPieChart tareas={filteredTasks} />
-          <VencimientoChart data={chartData} />
-          <VencimientoTable data={tableData} />
-        </div>
-
-        <div className="flex gap-4 mt-4">
+                  <div className="flex gap-4 mt-4">
           <select
             value={agrupamiento}
             onChange={(e) => { setAgrupamiento(e.target.value as any); setPeriodo(''); }}
@@ -125,6 +119,13 @@ export const Dashboard: React.FC = () => {
             ))}
           </select>
         </div>
+          <EstadoPieChart tareas={filteredTasks} />
+          <ImplementacionEfectividadPieChart tareas={filteredTasks} />
+          <VencimientoChart data={chartData} />
+          <VencimientoTable data={tableData} />
+        </div>
+
+
       </div>
     </div>
   );
