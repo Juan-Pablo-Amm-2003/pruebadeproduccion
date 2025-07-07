@@ -9,10 +9,13 @@ import { EstadoPieChart } from '../components/EstadoPieChart';
 import { ImplementacionEfectividadPieChart } from '../components/EfectividadChart';
 import { VencimientoChart } from '../components/VencimientoChart';
 import { VencimientoTable } from '../components/VencimientoTable';
+import { useVencimientoData } from '../hooks/useVencimientoData';
 
 export const Dashboard: React.FC = () => {
   const [tareas, setTareas] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [agrupamiento, setAgrupamiento] = useState<'Mes' | 'Trimestre' | 'Cuatrimestre' | 'Año'>('Mes');
+  const [periodo, setPeriodo] = useState<string>('');
   const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,6 +28,8 @@ export const Dashboard: React.FC = () => {
     setTareas(data);
     setLoading(false);
   };
+
+  const { chartData, tableData, periodosDisponibles } = useVencimientoData(tareas, agrupamiento, periodo);
 
   const handleDownloadDashboardPDF = async () => {
     if (reportRef.current) {
@@ -42,7 +47,7 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex justify-between mb-6">
           <h1 className="text-3xl font-bold text-green-700">Dashboard de Tareas</h1>
           <div className="flex gap-2">
@@ -72,8 +77,8 @@ export const Dashboard: React.FC = () => {
           />
           <EstadoPieChart tareas={tareas} />
           <ImplementacionEfectividadPieChart tareas={tareas} />
-          <VencimientoChart data={[]} />
-          <VencimientoTable data={[]} />
+          <VencimientoChart data={chartData} />
+          <VencimientoTable data={tableData} />
         </div>
       </div>
     </div>
