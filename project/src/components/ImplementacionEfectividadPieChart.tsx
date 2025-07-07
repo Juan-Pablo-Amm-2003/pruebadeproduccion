@@ -61,20 +61,37 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
     }
   };
 
+  const handleDownloadImage = async () => {
+    if (chartRef.current) {
+      const canvas = await html2canvas(chartRef.current, { scale: 2 });
+      const link = document.createElement('a');
+      link.download = 'efectividad_pie_chart.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  };
+
   return (
     <div ref={chartRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-900">
           Efectividad sobre Completados (Total: {total})
         </h3>
-        <button
-          onClick={handleDownloadPDF}
-          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
-        >
-          Descargar PDF
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleDownloadImage}
+            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+          >
+            Imagen
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+          >
+            PDF
+          </button>
+        </div>
       </div>
-
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
