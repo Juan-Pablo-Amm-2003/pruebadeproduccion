@@ -31,7 +31,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     'Completado': '#059669',
     'En curso': '#2563eb',
     'Pendiente': '#d97706',
-    'No iniciado': '#a78bfa',
+    'No iniciado': '#a78bfa'
   };
 
   const handleDownloadPDF = async () => {
@@ -41,7 +41,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
-        format: [canvas.width, canvas.height],
+        format: [canvas.width, canvas.height]
       });
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
       pdf.save('estado_pie_chart.pdf');
