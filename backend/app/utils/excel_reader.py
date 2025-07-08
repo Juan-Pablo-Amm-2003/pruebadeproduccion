@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 from app.domain.exceptions import ExcelProcessingError
 from app.domain.entities.constants import REQUIRED_COLUMNS
-from excel_cleaner import clean_excel_dataframe # type: ignore
+from app.utils.excel_cleaner import clean_excel_dataframe
 
 logger = logging.getLogger(__name__)
 
