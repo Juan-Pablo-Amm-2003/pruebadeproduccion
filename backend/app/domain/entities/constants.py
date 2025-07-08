@@ -1,5 +1,5 @@
 REQUIRED_COLUMNS = [
-    "Id. de tarea ",
+    "Id. de tarea",
     "Nombre de la tarea",
     "Nombre del depósito",
     "Progreso",
