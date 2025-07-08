@@ -1,7 +1,7 @@
 import pandas as pd
 import logging
 from app.domain.exceptions import ExcelProcessingError
-from backend.app.domain.entities.constants import REQUIRED_COLUMNS
+from app.domain.entities.constants import REQUIRED_COLUMNS
 
 logger = logging.getLogger(__name__)
 
