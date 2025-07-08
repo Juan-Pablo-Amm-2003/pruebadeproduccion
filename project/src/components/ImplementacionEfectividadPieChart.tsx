@@ -1,50 +1,38 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import { FileDown } from 'lucide-react';
 import { Task } from '../types/task';
 
-interface ImplementacionEfectividadPieChartProps {
+interface EstadoPieChartProps {
   tareas: Task[];
 }
 
-export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectividadPieChartProps> = ({ tareas }) => {
+export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
   const chartRef = useRef<HTMLDivElement>(null);
+  const total = tareas.length;
 
-  const completados = tareas.filter(t => t.progreso === 'Completado');
-  const total = completados.length;
+  const data = useMemo(() => {
+    const grouped = tareas.reduce((acc, t) => {
+      acc[t.progreso] = (acc[t.progreso] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
-  const efectividadVerificada = completados.filter(
-    t => t.nombre_del_deposito?.trim().toUpperCase() === 'EFECTIVIDAD VERIFICADA'
-  ).length;
-
-  const verificacionRechazada = completados.filter(
-    t => t.etiquetas?.toLowerCase().includes('verificacion rechazada')
-  ).length;
-
-  const verificacionEspera = completados.filter(
-    t => t.etiquetas?.toLowerCase().includes('verificacion en espera')
-  ).length;
-
-  const otros = total - (efectividadVerificada + verificacionRechazada + verificacionEspera);
-
-  const data = [
-    { name: 'Efectividad Verificada', value: efectividadVerificada },
-    { name: 'Verificación Rechazada', value: verificacionRechazada },
-    { name: 'Verificación en Espera', value: verificacionEspera },
-    { name: 'Otros Completados', value: otros }
-  ].map(d => ({
-    ...d,
-    porcentaje: total > 0 ? `${((d.value / total) * 100).toFixed(1)}%` : '0%'
-  }));
+    return Object.entries(grouped).map(([name, value]) => ({
+      name,
+      value,
+      porcentaje: total > 0 ? `${((value / total) * 100).toFixed(1)}%` : '0%'
+    }));
+  }, [tareas, total]);
 
   const COLORS: Record<string, string> = {
-    'Efectividad Verificada': '#059669',
-    'Verificación Rechazada': '#dc2626',
-    'Verificación en Espera': '#facc15',
-    'Otros Completados': '#2563eb'
+    'Completado': '#059669',
+    'En curso': '#2563eb',
+    'Pendiente': '#d97706',
+    'No iniciado': '#a78bfa'
   };
 
   const handleDownloadPDF = async () => {
@@ -56,60 +44,67 @@ export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectivid
         unit: 'px',
         format: [canvas.width, canvas.height]
       });
-      const fecha = new Date().toISOString().split('T')[0];
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-      pdf.save(`efectividad_pie_chart_${fecha}.pdf`);
+      pdf.save('estado_pie_chart.pdf');
     }
   };
 
-  const handleDownloadImage = async () => {
-    if (chartRef.current) {
-      const canvas = await html2canvas(chartRef.current, { scale: 2 });
-      const link = document.createElement('a');
-      link.download = 'efectividad_pie_chart.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
-  };
-
-return (
-  <div ref={chartRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-      Efectividad sobre Completados (Total: {total})
-    </h3>
-
-    <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          outerRadius={100}
-          dataKey="value"
-          nameKey="name"
-          label={({ name, porcentaje }) => `${name}: ${porcentaje}`}
+  return (
+    <div
+      ref={chartRef}
+      className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mb-8"
+    >
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h3 className="text-xl font-semibold text-gray-800">
+          Distribución por Estado <span className="text-sm text-gray-500">(Total: {total})</span>
+        </h3>
+        <button
+          onClick={handleDownloadPDF}
+          className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
         >
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={COLORS[entry.name] || '#8884d8'}
-            />
-          ))}
-        </Pie>
-        <Tooltip
-          formatter={(value: number, name: string, props: any) =>
-            [`${value} (${props.payload.porcentaje})`, name]
-          }
-          contentStyle={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px'
-          }}
-        />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
-  </div>
-);
+          <FileDown size={16} />
+          Descargar PDF
+        </button>
+      </div>
 
+      <ResponsiveContainer width="100%" height={320}>
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            dataKey="value"
+            nameKey="name"
+            label={({ name, porcentaje }) => `${porcentaje}`}
+          >
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[entry.name] || '#8884d8'}
+              />
+            ))}
+          </Pie>
+
+          <Tooltip
+            formatter={(value: number, name: string, props: any) =>
+              [`${value} (${props.payload.porcentaje})`, name]
+            }
+            contentStyle={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              fontSize: '0.875rem'
+            }}
+          />
+          <Legend
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+            wrapperStyle={{ marginTop: '20px' }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
 };

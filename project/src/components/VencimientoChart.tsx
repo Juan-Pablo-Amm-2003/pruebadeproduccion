@@ -4,6 +4,7 @@ import jsPDF from 'jspdf';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
+import { FileDown } from 'lucide-react';
 
 interface VencimientoChartProps {
   data: { name: string; count: number }[];
@@ -50,16 +51,23 @@ export const VencimientoChart: React.FC<VencimientoChartProps> = ({ data }) => {
   };
 
   return (
-    <div ref={chartRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Tareas por Fecha de Vencimiento</h3>
+    <div
+      ref={chartRef}
+      className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8"
+    >
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+        <h3 className="text-xl font-semibold text-gray-800">
+          Tareas por Fecha de Vencimiento
+        </h3>
         <button
           onClick={handleDownloadPDF}
-          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
         >
-          PDF
+          <FileDown size={16} />
+          Descargar PDF
         </button>
       </div>
+
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={sortedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -69,7 +77,8 @@ export const VencimientoChart: React.FC<VencimientoChartProps> = ({ data }) => {
             contentStyle={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
-              borderRadius: '8px'
+              borderRadius: '8px',
+              fontSize: '0.875rem'
             }}
           />
           <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />

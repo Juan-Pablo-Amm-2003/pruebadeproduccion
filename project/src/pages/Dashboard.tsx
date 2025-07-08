@@ -72,23 +72,32 @@ const handleDownloadChartsPDF = async () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex justify-between mb-6">
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <h1 className="text-3xl font-bold text-green-700">Dashboard de Tareas</h1>
           <button
             onClick={loadTasks}
             disabled={loading}
-            className="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Actualizar
           </button>
         </div>
 
+        {/* Subida de archivo */}
         <FileUpload onSuccess={handleFileUploadSuccess} onError={() => {}} />
 
-        <TaskFiltersComponent filters={filters} onFiltersChange={setFilters} assignees={[...new Set(tareas.map(t => t.asignado_a))].filter(Boolean)} />
+        {/* Filtros */}
+        <TaskFiltersComponent
+          filters={filters}
+          onFiltersChange={setFilters}
+          assignees={[...new Set(tareas.map(t => t.asignado_a))].filter(Boolean)}
+        />
 
+        {/* Cards resumen */}
         <SummaryCards
           totalTareas={tareas.length}
           tareasCompletadas={tareas.filter(t => t.progreso === 'Completado').length}
@@ -96,44 +105,56 @@ const handleDownloadChartsPDF = async () => {
           actualizados={0}
         />
 
-        <div className="flex justify-end mb-4">
+        {/* Botón PDF */}
+        <div className="flex justify-end">
           <button
             onClick={handleDownloadChartsPDF}
-            className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-all text-sm"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
           >
             Descargar Gráficos en PDF
           </button>
         </div>
 
-        <div ref={chartsRef} className="space-y-8">
+        {/* Gráficos */}
+        <div ref={chartsRef} className="grid gap-8">
           <EstadoPieChart tareas={filteredTasks} />
           <ImplementacionEfectividadPieChart tareas={filteredTasks} />
         </div>
 
+        {/* Filtros de agrupamiento */}
+        <div className="flex flex-col sm:flex-row gap-4 mt-6">
+          <div className="flex flex-col">
+            <label htmlFor="agrupamiento" className="text-sm font-medium text-gray-700 mb-1">Agrupar por</label>
+            <select
+              id="agrupamiento"
+              value={agrupamiento}
+              onChange={(e) => { setAgrupamiento(e.target.value as any); setPeriodo(''); }}
+              className="px-3 py-2 border border-green-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-green-400"
+            >
+              <option>Mes</option>
+              <option>Trimestre</option>
+              <option>Cuatrimestre</option>
+              <option>Año</option>
+            </select>
+          </div>
 
-        <div className="flex gap-4 mt-4 mb-4">
-          <select
-            value={agrupamiento}
-            onChange={(e) => { setAgrupamiento(e.target.value as any); setPeriodo(''); }}
-            className="px-3 py-2 border rounded border-green-300"
-          >
-            <option>Mes</option>
-            <option>Trimestre</option>
-            <option>Cuatrimestre</option>
-            <option>Año</option>
-          </select>
-          <select
-            value={periodo}
-            onChange={(e) => setPeriodo(e.target.value)}
-            className="px-3 py-2 border rounded border-green-300"
-          >
-            <option value="">Seleccione período...</option>
-            {periodosDisponibles.map(p => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
+          <div className="flex flex-col">
+            <label htmlFor="periodo" className="text-sm font-medium text-gray-700 mb-1">Período</label>
+            <select
+              id="periodo"
+              value={periodo}
+              onChange={(e) => setPeriodo(e.target.value)}
+              className="px-3 py-2 border border-green-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-green-400"
+            >
+              <option value="">Seleccione período...</option>
+              {periodosDisponibles.map(p => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
+        {/* Gráfico y tabla de vencimientos */}
         <VencimientoChart data={chartData} />
         <VencimientoTable data={tableData} />
       </div>

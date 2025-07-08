@@ -1,6 +1,4 @@
 import React, { useRef } from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
@@ -8,6 +6,7 @@ import { Task } from '../types/task';
 
 export const ImplementacionEfectividadPieChart: React.FC<{ tareas: Task[] }> = ({ tareas }) => {
   const chartRef = useRef<HTMLDivElement>(null);
+
   const completados = tareas.filter(t => t.progreso === 'Completado');
   const total = completados.length;
 
@@ -36,16 +35,22 @@ export const ImplementacionEfectividadPieChart: React.FC<{ tareas: Task[] }> = (
   }));
 
   const COLORS = {
-    'Efectividad Verificada': '#059669',
-    'Verificación Rechazada': '#dc2626',
-    'Verificación en Espera': '#facc15',
-    'Otros Completados': '#2563eb'
+    'Efectividad Verificada': '#059669', // verde
+    'Verificación Rechazada': '#dc2626', // rojo
+    'Verificación en Espera': '#facc15', // amarillo
+    'Otros Completados': '#2563eb'       // azul
   };
 
   return (
-    <div ref={chartRef} className="bg-white rounded-xl shadow-sm border p-6 mb-8">
-      <h3 className="text-lg font-semibold mb-4">Efectividad sobre Completados (Total: {total})</h3>
-      <ResponsiveContainer width="100%" height={300}>
+    <div
+      ref={chartRef}
+      className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mb-8"
+    >
+      <h3 className="text-xl font-semibold text-gray-800 mb-6">
+        Efectividad sobre Completados <span className="text-sm text-gray-500">(Total: {total})</span>
+      </h3>
+
+      <ResponsiveContainer width="100%" height={320}>
         <PieChart>
           <Pie
             data={data}
@@ -54,7 +59,7 @@ export const ImplementacionEfectividadPieChart: React.FC<{ tareas: Task[] }> = (
             outerRadius={100}
             dataKey="value"
             nameKey="name"
-            label={({ name, porcentaje }) => `${name}: ${porcentaje}`}
+            label={({ name, porcentaje }) => `${porcentaje}`}
           >
             {data.map((entry, index) => (
               <Cell
@@ -63,8 +68,21 @@ export const ImplementacionEfectividadPieChart: React.FC<{ tareas: Task[] }> = (
               />
             ))}
           </Pie>
-          <Tooltip />
-          <Legend />
+
+          <Tooltip
+            formatter={(value: number, name: string) => [`${value}`, name]}
+            contentStyle={{
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              fontSize: '0.875rem'
+            }}
+          />
+          <Legend
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+            wrapperStyle={{ marginTop: '20px' }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>
