@@ -57,7 +57,6 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
                       isReprogramado ? 'bg-orange-100' : ''
                     }`}
                   >
-                    <td className="px-6 py-4 font-medium text-gray-900">{tarea.id_de_tarea}</td>
                     <td className="px-6 py-4">{tarea.nombre_de_la_tarea}</td>
                     <td className="px-6 py-4 text-gray-600">{tarea.progreso}</td>
                     <td className="px-6 py-4 text-gray-600">{tarea.asignado_a}</td>
