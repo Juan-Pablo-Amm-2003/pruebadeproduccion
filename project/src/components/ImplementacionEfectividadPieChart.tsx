@@ -1,10 +1,7 @@
 import React, { useMemo, useRef } from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { FileDown } from 'lucide-react';
 import { Task } from '../types/task';
 
 interface EstadoPieChartProps {
@@ -35,19 +32,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     'No iniciado': '#a78bfa'
   };
 
-  const handleDownloadPDF = async () => {
-    if (chartRef.current) {
-      const canvas = await html2canvas(chartRef.current, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-      });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-      pdf.save('estado_pie_chart.pdf');
-    }
-  };
+
 
   return (
     <div
@@ -69,7 +54,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
             outerRadius={100}
             dataKey="value"
             nameKey="name"
-            label={({ name, porcentaje }) => `${porcentaje}`}
+            label={({ porcentaje }) => `${porcentaje}`}
           >
             {data.map((entry, index) => (
               <Cell
