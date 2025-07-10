@@ -115,17 +115,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onSuccess, onError }) =>
       <div className="mt-5 text-sm text-gray-700">
         <div className="flex items-start gap-2">
           <File className="w-4 h-4 mt-0.5 text-gray-400" />
-          <div>
-            <p className="font-medium">Formato esperado del archivo Excel:</p>
-            <ul className="mt-1 space-y-1 text-xs text-gray-600">
-              <li>• Columna A: ID de Tarea</li>
-              <li>• Columna B: Nombre de la Tarea</li>
-              <li>• Columna C: Progreso (Pendiente / En curso / Completado)</li>
-              <li>• Columna D: Asignado a</li>
-              <li>• Columna E: Fecha de Creación (YYYY-MM-DD)</li>
-              <li>• Columna F: Fecha de Vencimiento (YYYY-MM-DD)</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
