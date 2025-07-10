@@ -58,13 +58,6 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
         <h3 className="text-xl font-semibold text-gray-800">
           Distribución por Estado <span className="text-sm text-gray-500">(Total: {total})</span>
         </h3>
-        <button
-          onClick={handleDownloadPDF}
-          className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-        >
-          <FileDown size={16} />
-          Descargar PDF
-        </button>
       </div>
 
       <ResponsiveContainer width="100%" height={320}>
