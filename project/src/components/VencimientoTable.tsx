@@ -35,7 +35,7 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
         <table className="min-w-full text-sm text-left divide-y divide-gray-200">
           <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-semibold tracking-wide">
             <tr>
-              {['ID', 'Nombre', 'Estado', 'Responsable', 'Fecha Creación', 'Fecha Vencimiento'].map((col) => (
+              {['Nombre', 'Estado', 'Responsable', 'Fecha Creación', 'Fecha Vencimiento'].map((col) => (
                 <th key={col} className="px-6 py-3">{col}</th>
               ))}
             </tr>
