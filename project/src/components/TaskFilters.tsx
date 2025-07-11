@@ -6,15 +6,28 @@ interface TaskFiltersProps {
   filters: TaskFiltersType;
   onFiltersChange: (filters: TaskFiltersType) => void;
   assignees: string[];
+  completadoPor: string[];
 }
 
-export const TaskFilters: React.FC<TaskFiltersProps> = ({ filters, onFiltersChange, assignees }) => {
+export const TaskFilters: React.FC<TaskFiltersProps> = ({
+  filters,
+  onFiltersChange,
+  assignees,
+  completadoPor
+}) => {
   const handleFilterChange = (key: keyof TaskFiltersType, value: string) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 
   const resetFilters = () => {
-    onFiltersChange({ search: '', progreso: '', asignado_a: '', fecha_inicio: '', fecha_fin: '' });
+    onFiltersChange({
+      search: '',
+      progreso: '',
+      asignado_a: '',
+      completado_por: '',
+      fecha_inicio: '',
+      fecha_fin: ''
+    });
   };
 
   return (
@@ -25,6 +38,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ filters, onFiltersChan
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* Buscar tarea por nombre o ID */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
@@ -36,6 +50,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ filters, onFiltersChan
           />
         </div>
 
+        {/* Filtro por estado */}
         <select
           value={filters.progreso}
           onChange={(e) => handleFilterChange('progreso', e.target.value)}
@@ -47,6 +62,19 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ filters, onFiltersChan
           <option value="Completado">Completado</option>
         </select>
 
+        {/* Filtro por completado_por */}
+        <select
+          value={filters.completado_por}
+          onChange={(e) => handleFilterChange('completado_por', e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        >
+          <option value="">Todos los que completaron</option>
+          {completadoPor.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+
+        {/* Filtro por asignado_a */}
         <select
           value={filters.asignado_a}
           onChange={(e) => handleFilterChange('asignado_a', e.target.value)}
@@ -58,6 +86,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ filters, onFiltersChan
           ))}
         </select>
 
+        {/* Fechas: inicio y fin */}
         {['fecha_inicio', 'fecha_fin'].map((field) => (
           <div key={field} className="relative">
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -71,6 +100,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ filters, onFiltersChan
         ))}
       </div>
 
+      {/* Botón para limpiar filtros */}
       <div className="flex justify-end mt-5">
         <button
           onClick={resetFilters}

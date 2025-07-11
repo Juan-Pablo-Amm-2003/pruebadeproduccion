@@ -1,4 +1,5 @@
 export interface Task {
+  [x: string]: any;
   nombre_del_deposito: string;
   id_de_tarea: string;
   nombre_de_la_tarea: string;
@@ -19,11 +20,12 @@ export interface ProcessExcelResponse {
 }
 
 export interface TaskFilters {
+  completado_por: string | number | readonly string[] | undefined;
   search: string;
   progreso: string;
-  asignado_a: string;
   fecha_inicio: string;
   fecha_fin: string;
+  asignado_a: string;
 }
 
 export interface ChartData {

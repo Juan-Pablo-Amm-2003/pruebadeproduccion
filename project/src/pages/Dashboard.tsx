@@ -22,6 +22,7 @@ export const Dashboard: React.FC = () => {
     asignado_a: '',
     fecha_inicio: '',
     fecha_fin: '',
+    completado_por: ""
   });
   const [agrupamiento, setAgrupamiento] = useState<'Mes' | 'Trimestre' | 'Cuatrimestre' | 'Año'>('Mes');
   const [periodo, setPeriodo] = useState<string>('');
@@ -58,17 +59,21 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const filteredTasks = useMemo(() => {
-    return tareas.filter((task) => {
-      const matchesSearch =
-        !filters.search ||
-        task.nombre_de_la_tarea.toLowerCase().includes(filters.search.toLowerCase()) ||
-        task.id_de_tarea.toLowerCase().includes(filters.search.toLowerCase());
-      const matchesStatus = !filters.progreso || task.progreso === filters.progreso;
-      const matchesAssignee = !filters.asignado_a || task.asignado_a === filters.asignado_a;
-      return matchesSearch && matchesStatus && matchesAssignee;
-    });
-  }, [tareas, filters]);
+    const filteredTasks = useMemo(() => {
+      return tareas.filter((task) => {
+        const matchesSearch =
+          !filters.search ||
+          task.nombre_de_la_tarea.toLowerCase().includes(filters.search.toLowerCase()) ||
+          task.id_de_tarea.toLowerCase().includes(filters.search.toLowerCase());
+
+        const matchesStatus = !filters.progreso || task.progreso === filters.progreso;
+        const matchesAssignee = !filters.asignado_a || task.asignado_a === filters.asignado_a;
+        const matchesCompletadoPor = !filters.completado_por || task.completado_por === filters.completado_por;
+
+        return matchesSearch && matchesStatus && matchesAssignee && matchesCompletadoPor;
+      });
+    }, [tareas, filters]);
+
 
   const { chartData, tableData, periodosDisponibles } = useVencimientoData(tareas, agrupamiento, periodo);
 
@@ -114,11 +119,13 @@ export const Dashboard: React.FC = () => {
         {/* Filtros */}
         <section>
           <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">🔎 Filtros</h2>
-          <TaskFiltersComponent
-            filters={filters}
-            onFiltersChange={setFilters}
-            assignees={[...new Set(tareas.map((t) => t.asignado_a))].filter(Boolean)}
-          />
+       <TaskFiltersComponent
+          filters={filters}
+          onFiltersChange={setFilters}
+          assignees={[...new Set(tareas.map((t) => t.asignado_a))].filter(Boolean)}
+          completadoPor={[...new Set(tareas.map((t) => t.completado_por))].filter(Boolean)}
+        />
+
         </section>
 
         {/* Gráficos */}
