@@ -100,16 +100,6 @@ export const Dashboard: React.FC = () => {
           <FileUpload onSuccess={handleFileUploadSuccess} onError={() => {}} />
         </section>
 
-        {/* Filtros */}
-        <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">🔎 Filtros</h2>
-          <TaskFiltersComponent
-            filters={filters}
-            onFiltersChange={setFilters}
-            assignees={[...new Set(tareas.map((t) => t.asignado_a))].filter(Boolean)}
-          />
-        </section>
-
         {/* Cards resumen */}
         <section>
           <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">📊 Resumen</h2>
@@ -118,6 +108,16 @@ export const Dashboard: React.FC = () => {
             tareasCompletadas={tareas.filter((t) => t.progreso === 'Completado').length}
             insertados={0}
             actualizados={0}
+          />
+        </section>
+
+        {/* Filtros */}
+        <section>
+          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">🔎 Filtros</h2>
+          <TaskFiltersComponent
+            filters={filters}
+            onFiltersChange={setFilters}
+            assignees={[...new Set(tareas.map((t) => t.asignado_a))].filter(Boolean)}
           />
         </section>
 
