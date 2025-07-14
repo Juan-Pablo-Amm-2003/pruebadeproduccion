@@ -1,9 +1,9 @@
 import React, { useMemo, useRef } from 'react';
-
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { Task } from '../types/task';
+import { EmptyChartMessage } from './common/EmptyChartMessage';
 
 interface EstadoPieChartProps {
   tareas: Task[];
@@ -12,6 +12,15 @@ interface EstadoPieChartProps {
 export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const total = tareas.length;
+
+  if (!tareas || total === 0) {
+    return (
+      <EmptyChartMessage
+        title="Distribución por Estado"
+        message="No hay tareas para mostrar con los filtros actuales."
+      />
+    );
+  }
 
   const data = useMemo(() => {
     const grouped = tareas.reduce((acc, t) => {
@@ -33,17 +42,18 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     'No iniciado': '#a78bfa'
   };
 
-
-
   return (
-    <div ref={chartRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Distribución por Estado (Total: {total})
+    <div
+      ref={chartRef}
+      className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mb-8"
+    >
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h3 className="text-xl font-semibold text-gray-800">
+          Distribución por Estado <span className="text-sm text-gray-500">(Total: {total})</span>
         </h3>
       </div>
 
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={320}>
         <PieChart>
           <Pie
             data={data}
@@ -52,7 +62,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
             outerRadius={100}
             dataKey="value"
             nameKey="name"
-            label={({ name, porcentaje }) => `${name}: ${porcentaje}`}
+            label={({ porcentaje }) => `${porcentaje}`}
           >
             {data.map((entry, index) => (
               <Cell
@@ -61,6 +71,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
               />
             ))}
           </Pie>
+
           <Tooltip
             formatter={(value: number, name: string, props: any) =>
               [`${value} (${props.payload.porcentaje})`, name]
@@ -69,9 +80,15 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '8px',
+              fontSize: '0.875rem'
             }}
           />
-          <Legend />
+          <Legend
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+            wrapperStyle={{ marginTop: '20px' }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

@@ -3,36 +3,65 @@ import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { Task } from '../types/task';
+import { EmptyChartMessage } from './common/EmptyChartMessage';
 
-interface EstadoPieChartProps {
+interface ImplementacionEfectividadPieChartProps {
   tareas: Task[];
 }
 
-export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
+export const ImplementacionEfectividadPieChart: React.FC<ImplementacionEfectividadPieChartProps> = ({ tareas }) => {
   const chartRef = useRef<HTMLDivElement>(null);
-  const total = tareas.length;
+
+  // Filtramos solo tareas completadas
+  const completadas = useMemo(() => tareas.filter(t => t.progreso === 'Completado'), [tareas]);
+  const total = completadas.length;
+
+  if (total === 0) {
+    return (
+      <EmptyChartMessage
+        title="Efectividad sobre Completados"
+        message="No hay tareas completadas con los filtros actuales."
+      />
+    );
+  }
 
   const data = useMemo(() => {
-    const grouped = tareas.reduce((acc, t) => {
-      acc[t.progreso] = (acc[t.progreso] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const efectivas = completadas.filter(
+      t => t.nombre_del_deposito?.trim().toUpperCase() === 'EFECTIVIDAD VERIFICADA'
+    ).length;
 
-    return Object.entries(grouped).map(([name, value]) => ({
-      name,
-      value,
-      porcentaje: total > 0 ? `${((value / total) * 100).toFixed(1)}%` : '0%'
-    }));
-  }, [tareas, total]);
+    const rechazadas = completadas.filter(
+      t => t.etiquetas?.toLowerCase().includes('verificacion rechazada')
+    ).length;
+
+    const enEspera = completadas.filter(
+      t => t.etiquetas?.toLowerCase().includes('verificacion en espera')
+    ).length;
+
+    return [
+      {
+        name: 'Efectividad Verificada',
+        value: efectivas,
+        porcentaje: `${((efectivas / total) * 100).toFixed(1)}%`,
+      },
+      {
+        name: 'Verificación Rechazada',
+        value: rechazadas,
+        porcentaje: `${((rechazadas / total) * 100).toFixed(1)}%`,
+      },
+      {
+        name: 'Verificación en Espera',
+        value: enEspera,
+        porcentaje: `${((enEspera / total) * 100).toFixed(1)}%`,
+      },
+    ].filter(d => d.value > 0); // para evitar slices vacías
+  }, [completadas, total]);
 
   const COLORS: Record<string, string> = {
-    'Completado': '#059669',
-    'En curso': '#2563eb',
-    'Pendiente': '#d97706',
-    'No iniciado': '#a78bfa'
+    'Efectividad Verificada': '#16a34a',
+    'Verificación Rechazada': '#dc2626',
+    'Verificación en Espera': '#facc15',
   };
-
-
 
   return (
     <div
@@ -41,7 +70,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     >
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h3 className="text-xl font-semibold text-gray-800">
-          Distribución por Estado <span className="text-sm text-gray-500">(Total: {total})</span>
+          Efectividad sobre Completados <span className="text-sm text-gray-500">(Total: {total})</span>
         </h3>
       </div>
 

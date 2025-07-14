@@ -70,9 +70,20 @@ export const Dashboard: React.FC = () => {
         const matchesAssignee = !filters.asignado_a || task.asignado_a === filters.asignado_a;
         const matchesCompletadoPor = !filters.completado_por || task.completado_por === filters.completado_por;
 
-        return matchesSearch && matchesStatus && matchesAssignee && matchesCompletadoPor;
+        const matchesFechaInicio = !filters.fecha_inicio || new Date(task.fecha_de_creacion) >= new Date(filters.fecha_inicio);
+        const matchesFechaFin = !filters.fecha_fin || new Date(task.fecha_de_vencimiento) <= new Date(filters.fecha_fin);
+
+        return (
+          matchesSearch &&
+          matchesStatus &&
+          matchesAssignee &&
+          matchesCompletadoPor &&
+          matchesFechaInicio &&
+          matchesFechaFin
+        );
       });
     }, [tareas, filters]);
+
 
 
   const { chartData, tableData, periodosDisponibles } = useVencimientoData(tareas, agrupamiento, periodo);
