@@ -62,18 +62,6 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
           <option value="Completado">Completado</option>
         </select>
 
-        {/* Filtro por completado_por */}
-        <select
-          value={filters.completado_por}
-          onChange={(e) => handleFilterChange('completado_por', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        >
-          <option value="">Todos los que completaron</option>
-          {completadoPor.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-
         {/* Filtro por asignado_a */}
         <select
           value={filters.asignado_a}
