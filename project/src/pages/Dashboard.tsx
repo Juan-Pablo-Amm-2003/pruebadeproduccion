@@ -22,7 +22,7 @@ export const Dashboard: React.FC = () => {
     asignado_a: '',
     fecha_inicio: '',
     fecha_fin: '',
-    completado_por: ""
+    completado_por: ''
   });
   const [agrupamiento, setAgrupamiento] = useState<'Mes' | 'Trimestre' | 'Cuatrimestre' | 'Año'>('Mes');
   const [periodo, setPeriodo] = useState<string>('');
@@ -35,9 +35,12 @@ export const Dashboard: React.FC = () => {
 
   const loadTasks = async () => {
     setLoading(true);
-    const data = await taskAPI.fetchTareas();
-    setTareas(data);
-    setLoading(false);
+    try {
+      const data = await taskAPI.fetchTareas();
+      setTareas(Array.isArray(data) ? data : []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFileUploadSuccess = () => {
@@ -51,7 +54,7 @@ export const Dashboard: React.FC = () => {
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
-        format: [canvas.width, canvas.height],
+        format: [canvas.width, canvas.height]
       });
       const fecha = new Date().toISOString().split('T')[0];
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
@@ -59,39 +62,54 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-    const filteredTasks = useMemo(() => {
-      return tareas.filter((task) => {
-        const matchesSearch =
-          !filters.search ||
-          task.nombre_de_la_tarea.toLowerCase().includes(filters.search.toLowerCase()) ||
-          task.id_de_tarea.toLowerCase().includes(filters.search.toLowerCase());
+  // ✅ Corregido: defensivo para evitar nulls/undefined
+  const filteredTasks = useMemo(() => {
+    return (tareas || []).filter((task) => {
+      const nombre = task?.nombre_de_la_tarea ?? '';
+      const id = task?.id_de_tarea ?? '';
+      const progreso = task?.progreso ?? '';
+      const asignado = task?.asignado_a ?? '';
+      const completadoPor = task?.completado_por ?? '';
+      const fechaCreacion = task?.fecha_de_creacion ? new Date(task.fecha_de_creacion) : null;
+      const fechaVencimiento = task?.fecha_de_vencimiento ? new Date(task.fecha_de_vencimiento) : null;
 
-        const matchesStatus = !filters.progreso || task.progreso === filters.progreso;
-        const matchesAssignee = !filters.asignado_a || task.asignado_a === filters.asignado_a;
-        const matchesCompletadoPor = !filters.completado_por || task.completado_por === filters.completado_por;
+      const matchesSearch =
+        !filters.search ||
+        nombre.toLowerCase().includes(filters.search.toLowerCase()) ||
+        id.toLowerCase().includes(filters.search.toLowerCase());
 
-        const matchesFechaInicio = !filters.fecha_inicio || new Date(task.fecha_de_creacion) >= new Date(filters.fecha_inicio);
-        const matchesFechaFin = !filters.fecha_fin || new Date(task.fecha_de_vencimiento) <= new Date(filters.fecha_fin);
+      const matchesStatus = !filters.progreso || progreso === filters.progreso;
+      const matchesAssignee = !filters.asignado_a || asignado === filters.asignado_a;
+      const matchesCompletadoPor = !filters.completado_por || completadoPor === filters.completado_por;
 
-        return (
-          matchesSearch &&
-          matchesStatus &&
-          matchesAssignee &&
-          matchesCompletadoPor &&
-          matchesFechaInicio &&
-          matchesFechaFin
-        );
-      });
-    }, [tareas, filters]);
+      const matchesFechaInicio =
+        !filters.fecha_inicio ||
+        (fechaCreacion && fechaCreacion >= new Date(filters.fecha_inicio));
 
+      const matchesFechaFin =
+        !filters.fecha_fin ||
+        (fechaVencimiento && fechaVencimiento <= new Date(filters.fecha_fin));
 
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesAssignee &&
+        matchesCompletadoPor &&
+        matchesFechaInicio &&
+        matchesFechaFin
+      );
+    });
+  }, [tareas, filters]);
 
-  const { chartData, tableData, periodosDisponibles } = useVencimientoData(tareas, agrupamiento, periodo);
+  const { chartData, tableData, periodosDisponibles } = useVencimientoData(
+    tareas,
+    agrupamiento,
+    periodo
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-10">
-
         {/* Encabezado */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -112,13 +130,17 @@ export const Dashboard: React.FC = () => {
 
         {/* Subida de archivo */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">📎 Subir archivo</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            📎 Subir archivo
+          </h2>
           <FileUpload onSuccess={handleFileUploadSuccess} onError={() => {}} />
         </section>
 
         {/* Cards resumen */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">📊 Resumen</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            📊 Resumen
+          </h2>
           <SummaryCards
             totalTareas={tareas.length}
             tareasCompletadas={tareas.filter((t) => t.progreso === 'Completado').length}
@@ -129,20 +151,23 @@ export const Dashboard: React.FC = () => {
 
         {/* Filtros */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">🔎 Filtros</h2>
-       <TaskFiltersComponent
-          filters={filters}
-          onFiltersChange={setFilters}
-          assignees={[...new Set(tareas.map((t) => t.asignado_a))].filter(Boolean)}
-          completadoPor={[...new Set(tareas.map((t) => t.completado_por))].filter(Boolean)}
-        />
-
+          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            🔎 Filtros
+          </h2>
+          <TaskFiltersComponent
+            filters={filters}
+            onFiltersChange={setFilters}
+            assignees={[...new Set(tareas.map((t) => t.asignado_a))].filter(Boolean)}
+            completadoPor={[...new Set(tareas.map((t) => t.completado_por))].filter(Boolean)}
+          />
         </section>
 
         {/* Gráficos */}
         <section>
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">📈 Gráficos de Tareas</h2>
+            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+              📈 Gráficos de Tareas
+            </h2>
             <button
               onClick={handleDownloadChartsPDF}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
@@ -160,10 +185,17 @@ export const Dashboard: React.FC = () => {
 
         {/* Agrupamiento / Período */}
         <section className="bg-white border border-gray-200 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">📅 Agrupamiento por Período</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            📅 Agrupamiento por Período
+          </h2>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex flex-col w-full sm:w-auto">
-              <label htmlFor="agrupamiento" className="text-sm font-medium text-gray-700 mb-1">Agrupar por</label>
+              <label
+                htmlFor="agrupamiento"
+                className="text-sm font-medium text-gray-700 mb-1"
+              >
+                Agrupar por
+              </label>
               <select
                 id="agrupamiento"
                 value={agrupamiento}
@@ -181,7 +213,12 @@ export const Dashboard: React.FC = () => {
             </div>
 
             <div className="flex flex-col w-full sm:w-auto">
-              <label htmlFor="periodo" className="text-sm font-medium text-gray-700 mb-1">Período</label>
+              <label
+                htmlFor="periodo"
+                className="text-sm font-medium text-gray-700 mb-1"
+              >
+                Período
+              </label>
               <select
                 id="periodo"
                 value={periodo}
