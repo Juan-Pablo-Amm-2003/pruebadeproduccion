@@ -113,7 +113,7 @@ export const Dashboard: React.FC = () => {
         {/* Encabezado */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-green-700">Dashboard de Tareas</h1>
+            <h1 className="text-3xl font-bold text-green-700">Generación de gráficos y seguimiento de tareas</h1>
             <p className="text-sm text-gray-500 mt-1">
               Última actualización: {new Date().toLocaleString()}
             </p>
