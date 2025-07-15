@@ -3,7 +3,7 @@ import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { Task } from '../types/task';
-import { EmptyChartMessage } from './common/EmptyChartMessage';
+import { EmptyChartMessage } from './common/EmptyChartMessage'; // ✅ asegurate que esta ruta sea correcta
 
 interface EstadoPieChartProps {
   tareas: Task[];
@@ -23,15 +23,17 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
   }
 
   const data = useMemo(() => {
-    const grouped = tareas.reduce((acc, t) => {
-      acc[t.progreso] = (acc[t.progreso] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const grouped = tareas
+      .filter(t => !!t.progreso) // ✅ filtrado defensivo
+      .reduce((acc, t) => {
+        acc[t.progreso] = (acc[t.progreso] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
 
     return Object.entries(grouped).map(([name, value]) => ({
       name,
       value,
-      porcentaje: total > 0 ? `${((value / total) * 100).toFixed(1)}%` : '0%'
+      porcentaje: `${((value / total) * 100).toFixed(1)}%`,
     }));
   }, [tareas, total]);
 
@@ -43,10 +45,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
   };
 
   return (
-    <div
-      ref={chartRef}
-      className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mb-8"
-    >
+    <div ref={chartRef} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mb-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h3 className="text-xl font-semibold text-gray-800">
           Distribución por Estado <span className="text-sm text-gray-500">(Total: {total})</span>
@@ -62,13 +61,10 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
             outerRadius={100}
             dataKey="value"
             nameKey="name"
-            label={({ porcentaje }) => `${porcentaje}`}
+            label={({ index }) => data[index]?.porcentaje ?? ''} // ✅ defensivo
           >
             {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[entry.name] || '#8884d8'}
-              />
+              <Cell key={`cell-${index}`} fill={COLORS[entry.name] || '#8884d8'} />
             ))}
           </Pie>
 
@@ -83,12 +79,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
               fontSize: '0.875rem'
             }}
           />
-          <Legend
-            layout="horizontal"
-            verticalAlign="bottom"
-            align="center"
-            wrapperStyle={{ marginTop: '20px' }}
-          />
+          <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ marginTop: '20px' }} />
         </PieChart>
       </ResponsiveContainer>
     </div>
