@@ -20,29 +20,16 @@ export const ImplementacionEfectividadPieChart: React.FC<
   );
   const total = completadas.length;
 
-  // Mensaje si no hay completadas
-  if (total === 0) {
-    return (
-      <EmptyChartMessage
-        title="Efectividad sobre Completados"
-        message="No hay tareas completadas con los filtros actuales."
-      />
-    );
-  }
-
+  // ✅ useMemo siempre se llama
   const data = useMemo(() => {
     if (!completadas || total === 0) return [];
-
     const efectivas = completadas.filter(
       (t) =>
-        t.nombre_del_deposito?.trim().toUpperCase() ===
-        'EFECTIVIDAD VERIFICADA'
+        t.nombre_del_deposito?.trim().toUpperCase() === 'EFECTIVIDAD VERIFICADA'
     ).length;
-
     const rechazadas = completadas.filter((t) =>
       t.etiquetas?.toLowerCase().includes('verificacion rechazada')
     ).length;
-
     const enEspera = completadas.filter((t) =>
       t.etiquetas?.toLowerCase().includes('verificacion en espera')
     ).length;
@@ -65,6 +52,15 @@ export const ImplementacionEfectividadPieChart: React.FC<
       },
     ].filter((d) => d.value > 0);
   }, [completadas, total]);
+
+  if (total === 0 || data.length === 0) {
+    return (
+      <EmptyChartMessage
+        title="Efectividad sobre Completados"
+        message="No hay tareas completadas con los filtros actuales."
+      />
+    );
+  }
 
   const COLORS: Record<string, string> = {
     'Efectividad Verificada': '#16a34a',
@@ -102,27 +98,16 @@ export const ImplementacionEfectividadPieChart: React.FC<
               />
             ))}
           </Pie>
-
           <Tooltip
             formatter={(value: number, name: string, props: any) => [
               `${value} (${props.payload.porcentaje})`,
               name,
             ]}
-            contentStyle={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              fontSize: '0.875rem',
-            }}
           />
-          <Legend
-            layout="horizontal"
-            verticalAlign="bottom"
-            align="center"
-            wrapperStyle={{ marginTop: '20px' }}
-          />
+          <Legend layout="horizontal" verticalAlign="bottom" align="center" />
         </PieChart>
       </ResponsiveContainer>
     </div>
   );
 };
+

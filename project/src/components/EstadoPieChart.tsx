@@ -13,19 +13,9 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const total = tareas.length;
 
-  // Mensaje si no hay datos
-  if (!tareas || total === 0) {
-    return (
-      <EmptyChartMessage
-        title="Distribución por Estado"
-        message="No hay tareas para mostrar con los filtros actuales."
-      />
-    );
-  }
-
+  // ✅ useMemo siempre se llama
   const data = useMemo(() => {
     if (!tareas || tareas.length === 0) return [];
-
     const grouped = tareas
       .filter((t) => !!t.progreso)
       .reduce((acc, t) => {
@@ -40,10 +30,19 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     }));
   }, [tareas, total]);
 
+  if (!tareas || total === 0 || data.length === 0) {
+    return (
+      <EmptyChartMessage
+        title="Distribución por Estado"
+        message="No hay tareas para mostrar con los filtros actuales."
+      />
+    );
+  }
+
   const COLORS: Record<string, string> = {
-    'Completado': '#059669',
+    Completado: '#059669',
     'En curso': '#2563eb',
-    'Pendiente': '#d97706',
+    Pendiente: '#d97706',
     'No iniciado': '#a78bfa',
   };
 
@@ -77,27 +76,16 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
               />
             ))}
           </Pie>
-
           <Tooltip
             formatter={(value: number, name: string, props: any) => [
               `${value} (${props.payload.porcentaje})`,
               name,
             ]}
-            contentStyle={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              fontSize: '0.875rem',
-            }}
           />
-          <Legend
-            layout="horizontal"
-            verticalAlign="bottom"
-            align="center"
-            wrapperStyle={{ marginTop: '20px' }}
-          />
+          <Legend layout="horizontal" verticalAlign="bottom" align="center" />
         </PieChart>
       </ResponsiveContainer>
     </div>
   );
 };
+
