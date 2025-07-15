@@ -43,9 +43,11 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const handleFileUploadSuccess = () => {
-    loadTasks();
-  };
+const handleFileUploadSuccess = () => {
+  // 🔄 Refresca la página completa como un F5
+  window.location.reload();
+};
+
 
   const handleDownloadChartsPDF = async () => {
     if (chartsRef.current) {
