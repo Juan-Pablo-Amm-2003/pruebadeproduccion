@@ -19,7 +19,7 @@ export const ImplementacionEfectividadPieChart: React.FC<{ tareas: Task[] }> = (
   ).length;
 
   const verificacionEspera = completados.filter(
-    t => t.etiquetas?.toLowerCase().includes('verificacion en espera')
+    t => t.etiquetas?.toLowerCase().includes('Verificación en curso')
   ).length;
 
   const otros = total - (efectividadVerificada + verificacionRechazada + verificacionEspera);
@@ -27,7 +27,7 @@ export const ImplementacionEfectividadPieChart: React.FC<{ tareas: Task[] }> = (
   const data = [
     { name: 'Efectividad Verificada', value: efectividadVerificada },
     { name: 'Verificación Rechazada', value: verificacionRechazada },
-    { name: 'Verificación en Espera', value: verificacionEspera },
+    { name: 'Verificación en curso', value: verificacionEspera },
     { name: 'Otros Completados', value: otros }
   ].map(d => ({
     ...d,
@@ -37,7 +37,7 @@ export const ImplementacionEfectividadPieChart: React.FC<{ tareas: Task[] }> = (
   const COLORS = {
     'Efectividad Verificada': '#059669', // verde
     'Verificación Rechazada': '#dc2626', // rojo
-    'Verificación en Espera': '#facc15', // amarillo
+    'Verificación en curso': '#facc15', // amarillo
     'Otros Completados': '#2563eb'       // azul
   };
 

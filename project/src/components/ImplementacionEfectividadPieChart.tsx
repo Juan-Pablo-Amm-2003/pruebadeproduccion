@@ -49,7 +49,7 @@ export const ImplementacionEfectividadPieChart: React.FC<
       )
         efectivas++;
       if (etiquetas.includes('verificacion rechazada')) rechazadas++;
-      if (etiquetas.includes('verificacion en espera')) enEspera++;
+      if (etiquetas.includes('Verificación en curso')) enEspera++;
     });
 
     return [
@@ -64,7 +64,7 @@ export const ImplementacionEfectividadPieChart: React.FC<
         porcentaje: `${((rechazadas / total) * 100).toFixed(1)}%`,
       },
       {
-        name: 'Verificación en Espera',
+        name: 'Verificación en curso',
         value: enEspera,
         porcentaje: `${((enEspera / total) * 100).toFixed(1)}%`,
       },
@@ -83,7 +83,7 @@ export const ImplementacionEfectividadPieChart: React.FC<
   const COLORS: Record<string, string> = {
     'Efectividad Verificada': '#16a34a',
     'Verificación Rechazada': '#dc2626',
-    'Verificación en Espera': '#facc15',
+    'Verificación en curso': '#facc15',
   };
 
   return (
