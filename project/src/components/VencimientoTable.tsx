@@ -80,8 +80,9 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
               </tr>
             ) : (
               data.map((tarea) => {
-                const etiquetas = normalizeEtiquetas(tarea.etiquetas);
-                const isReprogramado = etiquetas.includes('reprogramado');
+                  const etiquetas = normalizeEtiquetas(tarea.etiquetas);
+                  const isReprogramado = etiquetas.includes('reprogramado');
+
 
                 return (
                   <tr

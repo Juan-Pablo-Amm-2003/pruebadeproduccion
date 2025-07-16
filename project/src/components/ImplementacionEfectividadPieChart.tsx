@@ -10,12 +10,14 @@ import {
 import { Task } from '../types/task';
 import { EmptyChartMessage } from './common/EmptyChartMessage';
 
-// 🔹 Normalizamos las etiquetas en un array
+// 🔹 Normalización robusta: minúsculas y sin tildes
 const normalizeEtiquetas = (etiquetas?: string): string[] => {
+  const normalize = (str: string) =>
+    str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   return etiquetas
     ? etiquetas
         .split(',')
-        .map((e) => e.trim().toLowerCase())
+        .map((e) => normalize(e.trim()))
         .filter(Boolean)
     : [];
 };
@@ -38,35 +40,33 @@ export const ImplementacionEfectividadPieChart: React.FC<
   const data = useMemo(() => {
     if (!completadas || total === 0) return [];
 
-    let efectivas = 0,
-      rechazadas = 0,
-      enEspera = 0;
+    const counters = { efectivas: 0, rechazadas: 0, enEspera: 0 };
 
     completadas.forEach((t) => {
       const etiquetas = normalizeEtiquetas(t.etiquetas);
       if (
         t.nombre_del_deposito?.trim().toUpperCase() === 'EFECTIVIDAD VERIFICADA'
       )
-        efectivas++;
-      if (etiquetas.includes('verificacion rechazada')) rechazadas++;
-      if (etiquetas.includes('Verificación en curso')) enEspera++;
+        counters.efectivas++;
+      if (etiquetas.includes('verificacion rechazada')) counters.rechazadas++;
+      if (etiquetas.includes('verificacion en curso')) counters.enEspera++;
     });
 
     return [
       {
         name: 'Efectividad Verificada',
-        value: efectivas,
-        porcentaje: `${((efectivas / total) * 100).toFixed(1)}%`,
+        value: counters.efectivas,
+        porcentaje: `${((counters.efectivas / total) * 100).toFixed(1)}%`,
       },
       {
         name: 'Verificación Rechazada',
-        value: rechazadas,
-        porcentaje: `${((rechazadas / total) * 100).toFixed(1)}%`,
+        value: counters.rechazadas,
+        porcentaje: `${((counters.rechazadas / total) * 100).toFixed(1)}%`,
       },
       {
         name: 'Verificación en curso',
-        value: enEspera,
-        porcentaje: `${((enEspera / total) * 100).toFixed(1)}%`,
+        value: counters.enEspera,
+        porcentaje: `${((counters.enEspera / total) * 100).toFixed(1)}%`,
       },
     ].filter((d) => d.value > 0);
   }, [completadas, total]);

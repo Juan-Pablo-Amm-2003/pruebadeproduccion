@@ -43,7 +43,7 @@ export const getPriorityColor = (priority: string): string => {
   return priorityColors[priority as keyof typeof priorityColors] || 'bg-gray-100 text-gray-800';
 };
 
-export const normalizeEtiquetas = (etiquetas?: string): string[] => {
+export const normalizeEtiquetas = (etiquetas?: string | null): string[] => {
   return etiquetas
     ? etiquetas
         .split(',')
