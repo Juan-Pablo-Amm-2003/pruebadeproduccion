@@ -4,16 +4,7 @@ import jsPDF from 'jspdf';
 import { Task } from '../types/task';
 import { formatDate } from '../utils/formatter';
 import { FileDown, RefreshCw } from 'lucide-react';
-
-// 🔹 Normalizamos las etiquetas en un array
-const normalizeEtiquetas = (etiquetas?: string): string[] => {
-  return etiquetas
-    ? etiquetas
-        .split(',')
-        .map((e) => e.trim().toLowerCase())
-        .filter(Boolean)
-    : [];
-};
+import { normalizeEtiquetas } from '../utils/etiquetasUtils';
 
 export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
   const tableRef = useRef<HTMLDivElement>(null);
@@ -80,9 +71,11 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
               </tr>
             ) : (
               data.map((tarea) => {
-                  const etiquetas = normalizeEtiquetas(tarea.etiquetas);
-                  const isReprogramado = etiquetas.includes('reprogramado');
-
+                const etiquetas = normalizeEtiquetas(
+                  tarea.etiquetas,
+                  tarea.nombre_del_deposito
+                );
+                const isReprogramado = etiquetas.includes('reprogramado');
 
                 return (
                   <tr
@@ -92,22 +85,29 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
                     }`}
                   >
                     <td className="px-6 py-4">{tarea.nombre_de_la_tarea}</td>
-                    <td className="px-6 py-4 text-gray-600">{tarea.progreso}</td>
-                    <td className="px-6 py-4 text-gray-600">{tarea.asignado_a}</td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {tarea.progreso}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {tarea.asignado_a}
+                    </td>
                     <td className="px-6 py-4 text-gray-600">
                       {formatDate(tarea.fecha_de_creacion)}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
                       {formatDate(tarea.fecha_de_vencimiento)}
                     </td>
-                    <td className="px-6 py-4 space-x-2">
-                      {etiquetas.map((et, i) => (
+                    <td className="px-6 py-4 flex flex-wrap gap-1">
+                      {etiquetas.map((et, idx) => (
                         <span
-                          key={i}
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded"
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded"
                         >
                           {et === 'reprogramado' && (
-                            <RefreshCw size={14} className="text-orange-700" />
+                            <RefreshCw
+                              size={14}
+                              className="text-orange-700"
+                            />
                           )}
                           {et}
                         </span>

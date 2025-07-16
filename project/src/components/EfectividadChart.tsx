@@ -59,7 +59,7 @@ export const ImplementacionEfectividadPieChart: React.FC<{ tareas: Task[] }> = (
             outerRadius={100}
             dataKey="value"
             nameKey="name"
-            label={({ name, porcentaje }) => `${porcentaje}`}
+            label={({ porcentaje }) => `${porcentaje}`}
           >
             {data.map((entry, index) => (
               <Cell
