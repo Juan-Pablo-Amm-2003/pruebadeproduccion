@@ -1,9 +1,24 @@
 import React, { useMemo, useRef } from 'react';
 import {
-  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from 'recharts';
 import { Task } from '../types/task';
 import { EmptyChartMessage } from './common/EmptyChartMessage';
+
+// 🔹 Normalizamos las etiquetas en un array
+const normalizeEtiquetas = (etiquetas?: string): string[] => {
+  return etiquetas
+    ? etiquetas
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean)
+    : [];
+};
 
 interface ImplementacionEfectividadPieChartProps {
   tareas: Task[];
@@ -20,19 +35,22 @@ export const ImplementacionEfectividadPieChart: React.FC<
   );
   const total = completadas.length;
 
-  // ✅ useMemo siempre se llama
   const data = useMemo(() => {
     if (!completadas || total === 0) return [];
-    const efectivas = completadas.filter(
-      (t) =>
+
+    let efectivas = 0,
+      rechazadas = 0,
+      enEspera = 0;
+
+    completadas.forEach((t) => {
+      const etiquetas = normalizeEtiquetas(t.etiquetas);
+      if (
         t.nombre_del_deposito?.trim().toUpperCase() === 'EFECTIVIDAD VERIFICADA'
-    ).length;
-    const rechazadas = completadas.filter((t) =>
-      t.etiquetas?.toLowerCase().includes('verificacion rechazada')
-    ).length;
-    const enEspera = completadas.filter((t) =>
-      t.etiquetas?.toLowerCase().includes('verificacion en espera')
-    ).length;
+      )
+        efectivas++;
+      if (etiquetas.includes('verificacion rechazada')) rechazadas++;
+      if (etiquetas.includes('verificacion en espera')) enEspera++;
+    });
 
     return [
       {
@@ -104,10 +122,13 @@ export const ImplementacionEfectividadPieChart: React.FC<
               name,
             ]}
           />
-          <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+          <Legend
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>
   );
 };
-

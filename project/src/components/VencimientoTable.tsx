@@ -3,7 +3,17 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Task } from '../types/task';
 import { formatDate } from '../utils/formatter';
-import { FileDown, RefreshCw } from 'lucide-react'; 
+import { FileDown, RefreshCw } from 'lucide-react';
+
+// 🔹 Normalizamos las etiquetas en un array
+const normalizeEtiquetas = (etiquetas?: string): string[] => {
+  return etiquetas
+    ? etiquetas
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean)
+    : [];
+};
 
 export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
   const tableRef = useRef<HTMLDivElement>(null);
@@ -50,7 +60,7 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
                 'Responsable',
                 'Fecha Creación',
                 'Fecha Vencimiento',
-                'Etiqueta',
+                'Etiquetas',
               ].map((col) => (
                 <th key={col} className="px-6 py-3">
                   {col}
@@ -70,8 +80,8 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
               </tr>
             ) : (
               data.map((tarea) => {
-                const isReprogramado =
-                  (tarea.etiquetas || '').toLowerCase() === 'reprogramado';
+                const etiquetas = normalizeEtiquetas(tarea.etiquetas);
+                const isReprogramado = etiquetas.includes('reprogramado');
 
                 return (
                   <tr
@@ -81,25 +91,26 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
                     }`}
                   >
                     <td className="px-6 py-4">{tarea.nombre_de_la_tarea}</td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {tarea.progreso}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {tarea.asignado_a}
-                    </td>
+                    <td className="px-6 py-4 text-gray-600">{tarea.progreso}</td>
+                    <td className="px-6 py-4 text-gray-600">{tarea.asignado_a}</td>
                     <td className="px-6 py-4 text-gray-600">
                       {formatDate(tarea.fecha_de_creacion)}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
                       {formatDate(tarea.fecha_de_vencimiento)}
                     </td>
-                    <td className="px-6 py-4">
-                      {isReprogramado && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-orange-200 text-orange-800 rounded">
-                          <RefreshCw size={14} className="text-orange-700" />
-                          Reprogramado
+                    <td className="px-6 py-4 space-x-2">
+                      {etiquetas.map((et, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded"
+                        >
+                          {et === 'reprogramado' && (
+                            <RefreshCw size={14} className="text-orange-700" />
+                          )}
+                          {et}
                         </span>
-                      )}
+                      ))}
                     </td>
                   </tr>
                 );

@@ -12,9 +12,7 @@ interface TaskFiltersProps {
 export const TaskFilters: React.FC<TaskFiltersProps> = ({
   filters,
   onFiltersChange,
-  assignees,
-  completadoPor
-}) => {
+  assignees}) => {
   const handleFilterChange = (key: keyof TaskFiltersType, value: string) => {
     onFiltersChange({ ...filters, [key]: value });
   };
