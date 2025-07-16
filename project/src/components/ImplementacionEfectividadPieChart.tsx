@@ -9,7 +9,6 @@ import {
 } from 'recharts';
 import { Task } from '../types/task';
 import { EmptyChartMessage } from './common/EmptyChartMessage';
-import { normalizeEtiquetas } from '../utils/etiquetasUtils';
 
 interface ImplementacionEfectividadPieChartProps {
   tareas: Task[];
@@ -31,13 +30,13 @@ export const ImplementacionEfectividadPieChart: React.FC<
 
     let efectivas = 0,
       rechazadas = 0,
-      enEspera = 0;
+      enCurso = 0;
 
     completadas.forEach((t) => {
-      const etiquetas = normalizeEtiquetas(t.etiquetas, t.nombre_del_deposito);
+      const etiquetas = t.etiquetas_normalizadas || [];
       if (etiquetas.includes('efectividad verificada')) efectivas++;
-      if (etiquetas.includes('verificacion rechazada')) rechazadas++;
-      if (etiquetas.includes('verificacion en curso')) enEspera++;
+      if (etiquetas.includes('verificación rechazada')) rechazadas++;
+      if (etiquetas.includes('verificación en curso')) enCurso++;
     });
 
     return [
@@ -53,8 +52,8 @@ export const ImplementacionEfectividadPieChart: React.FC<
       },
       {
         name: 'Verificación en curso',
-        value: enEspera,
-        porcentaje: `${((enEspera / total) * 100).toFixed(1)}%`,
+        value: enCurso,
+        porcentaje: `${((enCurso / total) * 100).toFixed(1)}%`,
       },
     ].filter((d) => d.value > 0);
   }, [completadas, total]);
@@ -110,11 +109,7 @@ export const ImplementacionEfectividadPieChart: React.FC<
               name,
             ]}
           />
-          <Legend
-            layout="horizontal"
-            verticalAlign="bottom"
-            align="center"
-          />
+          <Legend layout="horizontal" verticalAlign="bottom" align="center" />
         </PieChart>
       </ResponsiveContainer>
     </div>

@@ -1,9 +1,15 @@
 import React, { useMemo, useRef } from 'react';
 import {
-  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from 'recharts';
 import { Task } from '../types/task';
 import { EmptyChartMessage } from './common/EmptyChartMessage';
+import { normalizeEtiquetas } from '../utils/etiquetasUtils';
 
 interface EstadoPieChartProps {
   tareas: Task[];
@@ -13,15 +19,21 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const total = tareas.length;
 
-  // ✅ useMemo siempre se llama
   const data = useMemo(() => {
-    if (!tareas || tareas.length === 0) return [];
-    const grouped = tareas
-      .filter((t) => !!t.progreso)
-      .reduce((acc, t) => {
-        acc[t.progreso] = (acc[t.progreso] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+    if (!tareas || total === 0) return [];
+
+    const grouped: Record<string, number> = {};
+
+    tareas.forEach((t) => {
+      const progreso = t.progreso ?? 'Sin estado';
+      grouped[progreso] = (grouped[progreso] || 0) + 1;
+
+      // 🔹 Ejemplo: si queremos mostrar "Reprogramados" en un color aparte (opcional)
+      const etiquetas = normalizeEtiquetas(t.etiquetas, t.nombre_del_deposito);
+      if (etiquetas.includes('reprogramado')) {
+        grouped['Reprogramado'] = (grouped['Reprogramado'] || 0) + 1;
+      }
+    });
 
     return Object.entries(grouped).map(([name, value]) => ({
       name,
@@ -30,7 +42,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     }));
   }, [tareas, total]);
 
-  if (!tareas || total === 0 || data.length === 0) {
+  if (total === 0 || data.length === 0) {
     return (
       <EmptyChartMessage
         title="Distribución por Estado"
@@ -44,6 +56,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     'En curso': '#2563eb',
     Pendiente: '#d97706',
     'No iniciado': '#a78bfa',
+    Reprogramado: '#f97316', // 🔹 Naranja para diferenciarlos
   };
 
   return (
@@ -82,10 +95,13 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
               name,
             ]}
           />
-          <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+          <Legend
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>
   );
 };
-

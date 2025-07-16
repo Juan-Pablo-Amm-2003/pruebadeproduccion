@@ -13,6 +13,23 @@ import { FileUpload } from '../components/FileUpload';
 import { TaskFilters as TaskFiltersComponent } from '../components/TaskFilters';
 import { useVencimientoData } from '../hooks/useVencimientoData';
 
+// ✅ Normalizador reutilizable
+const normalizeEtiquetas = (etiquetas?: string, nombreDeposito?: string): string[] => {
+  const tags: string[] = [];
+  if (etiquetas) {
+    tags.push(
+      ...etiquetas
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean)
+    );
+  }
+  if (nombreDeposito) {
+    tags.push(nombreDeposito.trim().toLowerCase());
+  }
+  return tags;
+};
+
 export const Dashboard: React.FC = () => {
   const [tareas, setTareas] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,17 +54,20 @@ export const Dashboard: React.FC = () => {
     setLoading(true);
     try {
       const data = await taskAPI.fetchTareas();
-      setTareas(Array.isArray(data) ? data : []);
+      // ✅ Normalizamos las etiquetas en cada tarea
+      const normalized = (Array.isArray(data) ? data : []).map((t) => ({
+        ...t,
+        etiquetas_normalizadas: normalizeEtiquetas(t.etiquetas, t.nombre_del_deposito)
+      }));
+      setTareas(normalized);
     } finally {
       setLoading(false);
     }
   };
 
-const handleFileUploadSuccess = () => {
-  // 🔄 Refresca la página completa como un F5
-  window.location.reload();
-};
-
+  const handleFileUploadSuccess = () => {
+    window.location.reload(); // ✅ Refresca toda la página
+  };
 
   const handleDownloadChartsPDF = async () => {
     if (chartsRef.current) {
@@ -64,7 +84,6 @@ const handleFileUploadSuccess = () => {
     }
   };
 
-  // ✅ Corregido: defensivo para evitar nulls/undefined
   const filteredTasks = useMemo(() => {
     return (tareas || []).filter((task) => {
       const nombre = task?.nombre_de_la_tarea ?? '';
@@ -112,7 +131,6 @@ const handleFileUploadSuccess = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-10">
-        {/* Encabezado */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-green-700">Indicador de Eficiencia de IPC</h1>
@@ -130,19 +148,13 @@ const handleFileUploadSuccess = () => {
           </button>
         </div>
 
-        {/* Subida de archivo */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            📎 Subir archivo
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">📎 Subir archivo</h2>
           <FileUpload onSuccess={handleFileUploadSuccess} onError={() => {}} />
         </section>
 
-        {/* Cards resumen */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            📊 Resumen
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">📊 Resumen</h2>
           <SummaryCards
             totalTareas={tareas.length}
             tareasCompletadas={tareas.filter((t) => t.progreso === 'Completado').length}
@@ -151,11 +163,8 @@ const handleFileUploadSuccess = () => {
           />
         </section>
 
-        {/* Filtros */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            🔎 Filtros
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">🔎 Filtros</h2>
           <TaskFiltersComponent
             filters={filters}
             onFiltersChange={setFilters}
@@ -164,12 +173,9 @@ const handleFileUploadSuccess = () => {
           />
         </section>
 
-        {/* Gráficos */}
         <section>
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-              📈 Gráficos de Tareas
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">📈 Gráficos de Tareas</h2>
             <button
               onClick={handleDownloadChartsPDF}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
@@ -185,17 +191,11 @@ const handleFileUploadSuccess = () => {
           </div>
         </section>
 
-        {/* Agrupamiento / Período */}
         <section className="bg-white border border-gray-200 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            📅 Agrupamiento por Período
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">📅 Agrupamiento por Período</h2>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex flex-col w-full sm:w-auto">
-              <label
-                htmlFor="agrupamiento"
-                className="text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="agrupamiento" className="text-sm font-medium text-gray-700 mb-1">
                 Agrupar por
               </label>
               <select
@@ -215,10 +215,7 @@ const handleFileUploadSuccess = () => {
             </div>
 
             <div className="flex flex-col w-full sm:w-auto">
-              <label
-                htmlFor="periodo"
-                className="text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="periodo" className="text-sm font-medium text-gray-700 mb-1">
                 Período
               </label>
               <select
@@ -238,7 +235,6 @@ const handleFileUploadSuccess = () => {
           </div>
         </section>
 
-        {/* Gráfico y tabla de vencimientos */}
         <VencimientoChart data={chartData} />
         <VencimientoTable data={tableData} />
       </div>
