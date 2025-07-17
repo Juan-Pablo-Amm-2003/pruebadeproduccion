@@ -12,7 +12,9 @@ import { VencimientoTable } from "../components/VencimientoTable";
 import { FileUpload } from "../components/FileUpload";
 import { TaskFilters as TaskFiltersComponent } from "../components/TaskFilters";
 import { useVencimientoData } from "../hooks/useVencimientoData";
-import { normalizeEtiquetas } from "../utils/etiquetasUtils";
+
+// ✅ Centralizado
+import { processTareas, filtrarTareas } from "../utils/tareasProcessor";
 
 export const Dashboard: React.FC = () => {
   const [tareas, setTareas] = useState<Task[]>([]);
@@ -40,14 +42,8 @@ export const Dashboard: React.FC = () => {
     setLoading(true);
     try {
       const data = await taskAPI.fetchTareas();
-      const normalized = (Array.isArray(data) ? data : []).map((t) => ({
-        ...t,
-        etiquetas_normalizadas: normalizeEtiquetas(
-          t.etiquetas,
-          t.nombre_del_deposito
-        ),
-      }));
-      setTareas(normalized);
+      const processed = processTareas(Array.isArray(data) ? data : []);
+      setTareas(processed);
     } finally {
       setLoading(false);
     }
@@ -72,49 +68,11 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const filteredTasks = useMemo(() => {
-    return (tareas || []).filter((task) => {
-      const nombre = task?.nombre_de_la_tarea ?? "";
-      const id = task?.id_de_tarea ?? "";
-      const progreso = task?.progreso ?? "";
-      const asignado = task?.asignado_a ?? "";
-      const completadoPor = task?.completado_por ?? "";
-      const fechaCreacion = task?.fecha_de_creacion
-        ? new Date(task.fecha_de_creacion)
-        : null;
-      const fechaVencimiento = task?.fecha_de_vencimiento
-        ? new Date(task.fecha_de_vencimiento)
-        : null;
-
-      const matchesSearch =
-        !filters.search ||
-        nombre.toLowerCase().includes(filters.search.toLowerCase()) ||
-        id.toLowerCase().includes(filters.search.toLowerCase());
-
-      const matchesStatus = !filters.progreso || progreso === filters.progreso;
-      const matchesAssignee =
-        !filters.asignado_a || asignado === filters.asignado_a;
-      const matchesCompletadoPor =
-        !filters.completado_por || completadoPor === filters.completado_por;
-
-      const matchesFechaInicio =
-        !filters.fecha_inicio ||
-        (fechaCreacion && fechaCreacion >= new Date(filters.fecha_inicio));
-
-      const matchesFechaFin =
-        !filters.fecha_fin ||
-        (fechaVencimiento && fechaVencimiento <= new Date(filters.fecha_fin));
-
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesAssignee &&
-        matchesCompletadoPor &&
-        matchesFechaInicio &&
-        matchesFechaFin
-      );
-    });
-  }, [tareas, filters]);
+  // ✅ Usa el procesador centralizado
+  const filteredTasks = useMemo(
+    () => filtrarTareas(tareas, filters),
+    [tareas, filters]
+  );
 
   const { chartData, tableData, periodosDisponibles } = useVencimientoData(
     tareas,
@@ -125,6 +83,7 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-10">
+        {/* Encabezado */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-green-700">
@@ -146,16 +105,15 @@ export const Dashboard: React.FC = () => {
           </button>
         </div>
 
+        {/* Subida de archivo */}
         <section>
           <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
             📎 Subir archivo
           </h2>
-          <FileUpload
-            onSuccess={handleFileUploadSuccess}
-            onError={() => {}}
-          />
+          <FileUpload onSuccess={handleFileUploadSuccess} onError={() => {}} />
         </section>
 
+        {/* Resumen */}
         <section>
           <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
             📊 Resumen
@@ -170,6 +128,7 @@ export const Dashboard: React.FC = () => {
           />
         </section>
 
+        {/* Filtros */}
         <section>
           <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
             🔎 Filtros
@@ -186,6 +145,7 @@ export const Dashboard: React.FC = () => {
           />
         </section>
 
+        {/* Gráficos */}
         <section>
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
@@ -206,6 +166,7 @@ export const Dashboard: React.FC = () => {
           </div>
         </section>
 
+        {/* Agrupamiento y tabla */}
         <section className="bg-white border border-gray-200 rounded-2xl p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             📅 Agrupamiento por Período

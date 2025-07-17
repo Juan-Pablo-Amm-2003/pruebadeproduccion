@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from "react";
 import {
   PieChart,
   Pie,
@@ -6,10 +6,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
-import { Task } from '../types/task';
-import { EmptyChartMessage } from './common/EmptyChartMessage';
-import { normalizeEtiquetas } from '../utils/etiquetasUtils';
+} from "recharts";
+import { Task } from "../types/task";
+import { EmptyChartMessage } from "./common/EmptyChartMessage";
 
 interface EstadoPieChartProps {
   tareas: Task[];
@@ -25,13 +24,13 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     const grouped: Record<string, number> = {};
 
     tareas.forEach((t) => {
-      const progreso = t.progreso ?? 'Sin estado';
+      // ✅ Estado principal
+      const progreso = t.progreso ?? "Sin estado";
       grouped[progreso] = (grouped[progreso] || 0) + 1;
 
-      // 🔹 Ejemplo: si queremos mostrar "Reprogramados" en un color aparte (opcional)
-      const etiquetas = normalizeEtiquetas(t.etiquetas, t.nombre_del_deposito);
-      if (etiquetas.includes('reprogramado')) {
-        grouped['Reprogramado'] = (grouped['Reprogramado'] || 0) + 1;
+      // ✅ Reprogramado ya viene normalizado desde tareasProcessor
+      if (t.etiquetas_normalizadas?.includes("reprogramado")) {
+        grouped["Reprogramado"] = (grouped["Reprogramado"] || 0) + 1;
       }
     });
 
@@ -52,11 +51,11 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
   }
 
   const COLORS: Record<string, string> = {
-    Completado: '#059669',
-    'En curso': '#2563eb',
-    Pendiente: '#d97706',
-    'No iniciado': '#a78bfa',
-    Reprogramado: '#f97316', // 🔹 Naranja para diferenciarlos
+    Completado: "#059669",
+    "En curso": "#2563eb",
+    Pendiente: "#d97706",
+    "No iniciado": "#a78bfa",
+    Reprogramado: "#f97316", // ✅ Naranja para reprogramados
   };
 
   return (
@@ -66,7 +65,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
     >
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h3 className="text-xl font-semibold text-gray-800">
-          Distribución por Estado{' '}
+          Distribución por Estado{" "}
           <span className="text-sm text-gray-500">(Total: {total})</span>
         </h3>
       </div>
@@ -80,12 +79,12 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
             outerRadius={100}
             dataKey="value"
             nameKey="name"
-            label={({ index }) => data[index]?.porcentaje ?? ''}
+            label={({ index }) => data[index]?.porcentaje ?? ""}
           >
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={COLORS[entry.name] || '#8884d8'}
+                fill={COLORS[entry.name] || "#8884d8"}
               />
             ))}
           </Pie>
@@ -95,11 +94,7 @@ export const EstadoPieChart: React.FC<EstadoPieChartProps> = ({ tareas }) => {
               name,
             ]}
           />
-          <Legend
-            layout="horizontal"
-            verticalAlign="bottom"
-            align="center"
-          />
+          <Legend layout="horizontal" verticalAlign="bottom" align="center" />
         </PieChart>
       </ResponsiveContainer>
     </div>

@@ -70,6 +70,7 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
               </tr>
             ) : (
               data.map((tarea) => {
+                // ✅ Solo lectura, ya vienen procesadas
                 const etiquetas = tarea.etiquetas_normalizadas || [];
                 const isReprogramado = etiquetas.includes("reprogramado");
 
@@ -96,10 +97,7 @@ export const VencimientoTable: React.FC<{ data: Task[] }> = ({ data }) => {
                     <td className="px-6 py-4">
                       {isReprogramado && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-orange-200 text-orange-800 rounded">
-                          <RefreshCw
-                            size={14}
-                            className="text-orange-700"
-                          />
+                          <RefreshCw size={14} className="text-orange-700" />
                           Reprogramado
                         </span>
                       )}

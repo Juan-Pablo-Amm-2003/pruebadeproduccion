@@ -19,6 +19,7 @@ export const ImplementacionEfectividadPieChart: React.FC<
 > = ({ tareas }) => {
   const chartRef = useRef<HTMLDivElement>(null);
 
+  // ✅ Filtramos solo las completadas
   const completadas = useMemo(
     () => tareas.filter((t) => t.progreso === "Completado"),
     [tareas]
@@ -26,7 +27,7 @@ export const ImplementacionEfectividadPieChart: React.FC<
   const total = completadas.length;
 
   const data = useMemo(() => {
-    if (!completadas || total === 0) return [];
+    if (!total) return [];
 
     let efectivas = 0,
       rechazadas = 0,
@@ -40,22 +41,22 @@ export const ImplementacionEfectividadPieChart: React.FC<
     });
 
     return [
-      {
+      efectivas > 0 && {
         name: "Efectividad Verificada",
         value: efectivas,
         porcentaje: `${((efectivas / total) * 100).toFixed(1)}%`,
       },
-      {
+      rechazadas > 0 && {
         name: "Verificación Rechazada",
         value: rechazadas,
         porcentaje: `${((rechazadas / total) * 100).toFixed(1)}%`,
       },
-      {
+      enCurso > 0 && {
         name: "Verificación en curso",
         value: enCurso,
         porcentaje: `${((enCurso / total) * 100).toFixed(1)}%`,
       },
-    ].filter((d) => d.value > 0);
+    ].filter(Boolean) as { name: string; value: number; porcentaje: string }[];
   }, [completadas, total]);
 
   if (total === 0 || data.length === 0) {
