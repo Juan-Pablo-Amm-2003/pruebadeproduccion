@@ -29,10 +29,9 @@ api.interceptors.response.use(
   }
 );
 
-
 export const taskAPI = {
   fetchTareas: async (): Promise<Task[]> => {
-    const response = await api.get<{ status: string, data: Task[] }>('/tareas');
+    const response = await api.get<{ status: string; data: Task[] }>('/api/v1/tareas');
     console.log(response.data.data);
     return response.data.data;
   },
@@ -40,11 +39,11 @@ export const taskAPI = {
   procesarExcel: async (file: File): Promise<ProcessExcelResponse> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await api.post<{ status: string, data: ProcessExcelResponse }>(
-      '/procesar-excel',
+    const response = await api.post<{ status: string; data: ProcessExcelResponse }>(
+      '/api/v1/procesar-excel',
       formData,
-      { 
-       headers: { 'Content-Type': 'multipart/form-data' },
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
       }
     );
     return response.data.data;
