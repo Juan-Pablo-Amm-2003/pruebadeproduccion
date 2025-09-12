@@ -12,7 +12,7 @@ import { FileUpload } from "../components/FileUpload";
 import { TaskFilters as TaskFiltersComponent } from "../components/TaskFilters";
 import { useVencimientoData } from "../hooks/useVencimientoData";
 import { processTareas, filtrarTareas } from "../utils/tareasProcessor";
-import { exportIpcPdf } from "../utils/exportIpcPdf"; // ✅ NUEVO
+import { exportIpcPdf } from "../components/utils/exportDashboardPdf"; 
 
 export const Dashboard: React.FC = () => {
   const [tareas, setTareas] = useState<Task[]>([]);
@@ -25,7 +25,8 @@ export const Dashboard: React.FC = () => {
     fecha_fin: "",
     completado_por: "",
   });
-  const [agrupamiento, setAgrupamiento] = useState<"Mes" | "Trimestre" | "Cuatrimestre" | "Año">("Mes");
+  const [agrupamiento, setAgrupamiento] =
+    useState<"Mes" | "Trimestre" | "Cuatrimestre" | "Año">("Mes");
   const [periodo, setPeriodo] = useState<string>("");
 
   useEffect(() => {
@@ -45,7 +46,10 @@ export const Dashboard: React.FC = () => {
 
   const handleFileUploadSuccess = () => window.location.reload();
 
-  const filteredTasks = useMemo(() => filtrarTareas(tareas, filters), [tareas, filters]);
+  const filteredTasks = useMemo(
+    () => filtrarTareas(tareas, filters),
+    [tareas, filters]
+  );
 
   const { chartData, tableData, periodosDisponibles } = useVencimientoData(
     tareas,
@@ -53,15 +57,22 @@ export const Dashboard: React.FC = () => {
     periodo
   );
 
-  // 🔽 Mapea filtros locales -> Filtros del PDF
+  // 🔽 helper para normalizar strings vacíos
+  const s = (v: unknown) => {
+    const val =
+      Array.isArray(v) ? v.join(",") : v === undefined || v === null ? "" : String(v);
+    return val.trim() ? val : undefined;
+  };
+
+  // ✅ mapea a los tipos esperados por exportIpcPdf (todo string | undefined)
   const pdfFilters = useMemo(
     () => ({
-      progreso: filters.progreso || undefined,
-      asignado_a: filters.asignado_a || undefined,
-      completado_por: filters.completado_por || undefined,
-      fechaDesde: filters.fecha_inicio || undefined,
-      fechaHasta: filters.fecha_fin || undefined,
-      search: filters.search || undefined,
+      progreso: s(filters.progreso),
+      asignado_a: s(filters.asignado_a),
+      completado_por: s(filters.completado_por), // << corrige el union (string | number | string[])
+      fechaDesde: s(filters.fecha_inicio),
+      fechaHasta: s(filters.fecha_fin),
+      search: s(filters.search),
     }),
     [filters]
   );
@@ -71,16 +82,14 @@ export const Dashboard: React.FC = () => {
       filtros: pdfFilters,
       titulo: "Indicador de Eficiencia de IPC",
       fileName: "Reporte_IPC",
-      // 👇 IDs en el DOM que vamos a capturar en orden
       blockIds: [
-        "pdf-cards",            // resumen KPI
-        "pdf-filtros",          // filtros
-        "pdf-chart-estado",     // card: estado
-        "pdf-chart-efectividad",// card: efectividad
-        "pdf-venc-chart",       // chart vencimientos
-        "pdf-venc-table",       // tabla vencimientos
+        "pdf-cards",
+        "pdf-filtros",
+        "pdf-chart-estado",
+        "pdf-chart-efectividad",
+        "pdf-venc-chart",
+        "pdf-venc-table",
       ],
-      // 👇 filas detalladas al final
       tableRows: tableData,
     });
   };
@@ -141,7 +150,7 @@ export const Dashboard: React.FC = () => {
           />
         </section>
 
-        {/* Charts dentro de Cards (cada uno con su contenedor ID para PDF) */}
+        {/* Charts dentro de Cards */}
         <section>
           <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">📈 Gráficos de Tareas</h2>
           <div className="grid gap-8">
