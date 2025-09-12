@@ -1,42 +1,35 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import type { Task } from "../types/task";
-
-type Props = { tareas: Task[]; height?: number | string };
+import { useEfectividadData } from "../hooks/useEfectividadData";
+import { EmptyChartMessage } from "./common/EmptyChartMessage";
 
 const COLORS: Record<string, string> = {
   "Efectividad Verificada": "#16a34a",
   "Verificación Rechazada": "#dc2626",
   "Verificación en curso": "#facc15",
+  "Otros Completados": "#2563eb",
 };
 
-export default function EfectividadChart({ tareas, height = "100%" }: Props) {
-  const completadas = useMemo(() => tareas.filter((t) => t.progreso === "Completado"), [tareas]);
-  const total = completadas.length;
+export default function EfectividadChart({ tareas, height = 320 }: { tareas: Task[]; height?: number | string }) {
+  const { totalCompletadas, data } = useEfectividadData(tareas);
 
-  const data = useMemo(() => {
-    if (!total) return [];
-    let efectivas = 0, rechazadas = 0, enCurso = 0;
-    completadas.forEach((t) => {
-      const e = t.etiquetas_normalizadas || [];
-      if (e.includes("efectividad verificada")) efectivas++;
-      if (e.includes("verificacion rechazada")) rechazadas++;
-      if (e.includes("verificacion en curso")) enCurso++;
-    });
-    return [
-      efectivas > 0 && { name: "Efectividad Verificada", value: efectivas, porcentaje: `${((efectivas / total) * 100).toFixed(1)}%` },
-      rechazadas > 0 && { name: "Verificación Rechazada", value: rechazadas, porcentaje: `${((rechazadas / total) * 100).toFixed(1)}%` },
-      enCurso > 0 && { name: "Verificación en curso", value: enCurso, porcentaje: `${((enCurso / total) * 100).toFixed(1)}%` },
-    ].filter(Boolean) as { name: string; value: number; porcentaje: string }[];
-  }, [completadas, total]);
-
-  if (total === 0 || data.length === 0) {
-    return <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">Sin datos</div>;
+  if (!totalCompletadas || data.length === 0) {
+    return (
+      <EmptyChartMessage
+        title="Efectividad sobre Completados"
+        message="No hay tareas completadas con los filtros actuales."
+      />
+    );
   }
 
   return (
-    <div className="w-full min-w-0" style={{ height }}>
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+      <h3 className="text-xl font-semibold text-gray-800 mb-6">
+        Efectividad sobre Completados <span className="text-sm text-gray-500">(Total: {totalCompletadas})</span>
+      </h3>
+
+      <ResponsiveContainer width="100%" height={height}>
         <PieChart>
           <Pie
             data={data}
@@ -45,13 +38,13 @@ export default function EfectividadChart({ tareas, height = "100%" }: Props) {
             outerRadius={100}
             dataKey="value"
             nameKey="name"
-            label={({ index }) => data[index]?.porcentaje ?? ""}
+            label={({ index }) => data[index!]?.porcentaje ?? ""}
           >
-            {data.map((entry, i) => (
-              <Cell key={i} fill={COLORS[entry.name] || "#8884d8"} />
+            {data.map((d, i) => (
+              <Cell key={i} fill={COLORS[d.name] || "#8884d8"} />
             ))}
           </Pie>
-          <Tooltip formatter={(value: number, name: string, p: any) => [`${value} (${p.payload.porcentaje})`, name]} />
+          <Tooltip formatter={(v: any, n: any, p: any) => [`${v} (${p.payload.porcentaje})`, n]} />
           <Legend layout="horizontal" verticalAlign="bottom" align="center" />
         </PieChart>
       </ResponsiveContainer>

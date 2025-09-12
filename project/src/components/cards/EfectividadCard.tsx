@@ -1,7 +1,7 @@
 import React from "react";
 import type { Task } from "../../types/task";
 import ChartCard from "../common/ChartCard";
-import EfectividadChart from "../EfectividadChart"; // tu chart puro
+import EfectividadChart from "../EfectividadChart";
 
 export default function EfectividadCard({ tareas }: { tareas: Task[] }) {
   const totalComp = tareas.filter(t => t.progreso === "Completado").length;
@@ -9,8 +9,9 @@ export default function EfectividadCard({ tareas }: { tareas: Task[] }) {
     <ChartCard
       title={`Efectividad sobre Completados (Total: ${totalComp})`}
       height={320}
-      children={<EfectividadChart tareas={tareas} height="100%" />}
-      modal={<EfectividadChart tareas={tareas} height="100%" />}
+      // 👇 el mismo chart “puro” en card y modal
+      children={<EfectividadChart tareas={tareas} height={300} />}
+      modal={<EfectividadChart tareas={tareas} height={"100%"} />}
     />
   );
 }
